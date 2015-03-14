@@ -1,4 +1,5 @@
 import pycurl
+import json
 from StringIO import StringIO
 
 TITLEFORMAT="%%TITLE%%"
@@ -13,15 +14,20 @@ def getURL(title):
 	urlForTitle = WIKIQUOTEURL.replace(TITLEFORMAT, urlReadyTitle)
 	return urlForTitle
 
-def main():
+def downloadQuote(curler, title):
 	buffer = StringIO()
-	curler = pycurl.Curl()
-	curler.setopt(curler.URL, getURL("Friedrich Nietzsche"))
+	curler.setopt(curler.URL, getURL(title))
 	curler.setopt(curler.WRITEDATA, buffer)
 	curler.perform()
+	return buffer.getvalue()
+
+def main():
+	curler = pycurl.Curl()
+	body = downloadQuote(curler, "Friedrich Nietzsche")
+	jsonObject = json.loads(body)
+	for key in jsonObject.iterkeys():
+		print key
 	curler.close()
-	body = buffer.getvalue()
-	print(body)
 
 if __name__ == '__main__':
 	main()
