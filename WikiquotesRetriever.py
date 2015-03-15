@@ -1,6 +1,4 @@
 import pycurl
-import json
-from StringIO import StringIO
 
 class WikiquotesRetriever():
 	"""This class retrieves pages from Wikiquotes"""
