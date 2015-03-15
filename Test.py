@@ -1,4 +1,6 @@
 import unittest
+import subprocess
+
 from WikiquotesRetriever import WikiquotesRetriever
 
 class WikiquotesRetrieverTest(unittest.TestCase):
@@ -7,11 +9,11 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 		wikiRetriever = WikiquotesRetriever()
 		wikiRetriever.setupNetworking()
 		onlineJSONContent = wikiRetriever.downloadQuote("Friedrich Nietzsche")
-		print onlineJSONContent
 		wikiRetriever.closeNetworking()
-		with open('Friedrich_Nietzsche.json', 'r') as fileHandle:
-			savedJSONContent = fileHandle.read()
-			self.assertTrue(savedJSONContent == onlineJSONContent)
+		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+		areEqual = externalJSONContent == onlineJSONContent
+		self.assertTrue(areEqual)
 
 def main():
 	unittest.main()
