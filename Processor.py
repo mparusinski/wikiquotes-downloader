@@ -45,11 +45,11 @@ class WikiquoteIR:
 		self.pageTitle = None
 
 	def __processWikitext(self, wikitext):
-		print wikitext
+		return wikitext
 
 	def __processInternal(self, pageElement):
 		wikitext = pageElement["*"]
-		self.__processWikitext(wikitext)
+		return self.__processWikitext(wikitext)
 
 	def __processPage(self, page):
 		pageKeys = page.keys()
@@ -57,12 +57,16 @@ class WikiquoteIR:
 		pageInternal = page[pageID]
 		self.pageTitle = pageInternal['title']
 		pageContent = pageInternal['revisions']
-		map(self.__processInternal, pageContent)
+		return self.__processInternal(pageContent[0])
 
-	def populateFromJSON(self, jsonString):
+	def extractWikitext(self, jsonString):
 		jsonContent = json.loads(jsonString)
 		page = getAddressJSON(jsonContent, self.keyString)
-		self.__processPage(page)
+		return self.__processPage(page)
+
+	def populateFromJSON(self, jsonString):
+		wikitext = self.extractWikitext(jsonString)
+		print wikitext
 
 def main():
 	with open('Friedrich_Nietzsche.json', 'r') as filehandle:
