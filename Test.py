@@ -4,6 +4,7 @@ import sys
 import subprocess
 
 from WikiquotesRetriever import WikiquotesRetriever, InvalidTitleException
+from Processor import WikiquoteIR
 
 REBUILDBASELINES = False
 
@@ -21,6 +22,32 @@ def saferSystemCall(call):
 			validResponse = True
 		else:
 			print "Please type YES or NO!"
+
+
+class WikiquoteIRBaselines:
+	"""Class to rebuild baselines"""
+
+	def rebuildForTestCorrectWikitextBuilt(self):
+		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikiquoteIR = WikiquoteIR()
+			wikitext = wikiquoteIR.extractWikitext(externalJSONContent)
+			wikitextUTF8 = wikitext.encode('UTF-8')
+			with open('Friedrich_Nietzsche.wikitext', 'w') as writehandle:
+				writehandle.write(wikitextUTF8)
+
+
+class WikiquoteIRTest(unittest.TestCase):
+
+	def testCorrectWikitextBuild(self):
+		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikiquoteIR = WikiquoteIR()
+			wikitext = wikiquoteIR.extractWikitext(externalJSONContent)
+			wikitextUTF8 = wikitext.encode('UTF-8')
+			with open('Friedrich_Nietzsche.wikitext', 'r') as readhandle:
+				wikitextbaseline = readhandle.read()
+				self.assertTrue(wikitextUTF8 == wikitextbaseline)
 
 
 class WikiquotesRetrieverBaselines:
@@ -74,6 +101,8 @@ def rebuildBaselines():
 	print "Execute at your own risk"
 	wikiquotesRetrieverBaselines = WikiquotesRetrieverBaselines()
 	wikiquotesRetrieverBaselines.rebuildForTestCorrectJSONDownloaded()
+	wikiquoteIRBaselines = WikiquoteIRBaselines()
+	wikiquoteIRBaselines.rebuildForTestCorrectWikitextBuilt()
 
 def main():
 	if REBUILDBASELINES:
