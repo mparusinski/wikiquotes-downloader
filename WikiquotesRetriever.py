@@ -1,4 +1,16 @@
 import pycurl
+from StringIO import StringIO
+
+PEEK_AHEAD_FOR_ERROR_LENGTH = 321 - 13
+
+class InvalidTitleException(Exception):
+
+	def __init__(self, title):
+		self.title = title
+
+	def __str__(self):
+		return repr(self.title)
+
 
 class WikiquotesRetriever():
 	"""This class retrieves pages from Wikiquotes"""
@@ -28,7 +40,12 @@ class WikiquotesRetriever():
 		self.curler.setopt(self.curler.URL, self.__getURL(title))
 		self.curler.setopt(self.curler.WRITEDATA, buffer)
 		self.curler.perform()
-		return buffer.getvalue()
+		jsonText = buffer.getvalue()
+		peekAhead = jsonText[0:PEEK_AHEAD_FOR_ERROR_LENGTH + len(title)]
+		peekText = "\"pages\":{\"-1\""
+		if peekText in peekAhead:
+			raise InvalidTitleException(title)
+		return jsonText
 
 def main():
 	wikiRetriever = WikiquotesRetriever()
