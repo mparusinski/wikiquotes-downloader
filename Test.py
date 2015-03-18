@@ -107,8 +107,8 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 			wikiRetriever.closeNetworking()
 
 def rebuildBaselines():
-	print "Rebuilding baselines instead of running test"
-	print "Execute at your own risk"
+	print "!!!!Rebuilding baselines instead of running test!!!!"
+	print "!!!!Execute at your own risk!!!!"
 	wikiquotesRetrieverBaselines = WikiquotesRetrieverBaselines()
 	wikiquotesRetrieverBaselines.rebuildForTestCorrectJSONDownloaded()
 	wikiquoteIRBaselines = WikiquoteIRBaselines()

@@ -11,6 +11,61 @@ def inspectJSONList(json):
 		stringElem = unicode(elem)
 		print stringElem[0:100]
 
+class WikitextIRNode:
+	"""Defines a node in the internal representation of a wikitext page"""
+	def __init__(self, currentString, parentNode = None):
+		self.currentString = currentString
+		self.children = []
+		self.parentNode = parentNode
+
+	def addChild(self, wikitextIRNode):
+		self.children.append(wikitextIRNode)
+
+	def getParent(self):
+		return self.parentNode
+
+
+class WikitextIR:
+	"""Defines an internal representation of a wikitext page"""
+	def __init__(self, wikitext):
+		self.rootNode = WikitextIRNode(wikitext.getWikitextTitle())
+		self.__parseText(wikitext.getWikitextString())
+
+	def __parseText(textToParse):
+		currentNode = self.rootNode
+		currentDepth = 0
+		for line in self.textToParse.splitlines():
+			if self.__validLine(line, "*"):
+				depth = self.__findDepth(line, "*")
+				if depth > currentDepth: # Going deeper
+					if not (depth - currentDepth == 1):
+						# TODO Raise appropriate error
+						print "Parse error! Line " + line + " is not invalid"
+					else:
+						newNode = WikitextIRNode(line[depth:], currentNode)
+						currentNode.addChild(newNode)
+						currentNode = newNode
+						currentDepth = depth
+				else:
+					dropAmount = currentDepth - depth
+					for i in xrange(dropAmount):
+						currentNode = currentNode.getParent()
+					parentNode = currentNode.getParent()
+					newNode = WikitextIRNode(line[depth:], parentNode)
+					parentNode.addChild(newNode)
+					currentDepth = depth
+
+	def __validLine(self, line, "*"):
+		return len(line) > 0  and line[0] == '*'
+
+	def __findDepth(self, line, "*"):
+		for idx, char in enumerate(line):
+			if not char == '*':
+				return idx - 1
+		return len(line)
+
+
+
 class Wikitext:
 	"""Wikitext that is embedded in a jsonString"""
 	def __init__(self, jsonString):
@@ -44,6 +99,9 @@ class Wikitext:
 
 	def getWikitextString(self):
 		return self.wikitext
+
+	def getWikitextTitle(self):
+		return self.title
 
 def main():
 	with open('Friedrich_Nietzsche.json', 'r') as filehandle:
