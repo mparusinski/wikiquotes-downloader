@@ -24,6 +24,9 @@ class WikitextIRNode:
 	def getParent(self):
 		return self.parentNode
 
+	def getChildren(self):
+		return self.children
+
 
 class WikitextIR:
 	"""Defines an internal representation of a wikitext page"""
@@ -31,18 +34,18 @@ class WikitextIR:
 		self.rootNode = WikitextIRNode(wikitext.getWikitextTitle())
 		self.__parseText(wikitext.getWikitextString())
 
-	def __parseText(textToParse):
+	def __parseText(self, textToParse):
 		currentNode = self.rootNode
 		currentDepth = 0
-		for line in self.textToParse.splitlines():
-			if self.__validLine(line, "*"):
-				depth = self.__findDepth(line, "*")
+		for line in textToParse.splitlines():
+			if self.__validLine(line, '*'):
+				depth = self.__findDepth(line, '*')
 				if depth > currentDepth: # Going deeper
 					if not (depth - currentDepth == 1):
 						# TODO Raise appropriate error
 						print "Parse error! Line " + line + " is not invalid"
 					else:
-						newNode = WikitextIRNode(line[depth:], currentNode)
+						newNode = WikitextIRNode(line[depth:], parentNode=currentNode)
 						currentNode.addChild(newNode)
 						currentNode = newNode
 						currentDepth = depth
@@ -51,18 +54,22 @@ class WikitextIR:
 					for i in xrange(dropAmount):
 						currentNode = currentNode.getParent()
 					parentNode = currentNode.getParent()
-					newNode = WikitextIRNode(line[depth:], parentNode)
+					newNode = WikitextIRNode(line[depth:], parentNode=parentNode)
 					parentNode.addChild(newNode)
+					currentNode = newNode
 					currentDepth = depth
 
-	def __validLine(self, line, "*"):
-		return len(line) > 0  and line[0] == '*'
+	def __validLine(self, line, char):
+		return len(line) > 0  and line[0] == char
 
-	def __findDepth(self, line, "*"):
+	def __findDepth(self, line, charIndication):
 		for idx, char in enumerate(line):
-			if not char == '*':
-				return idx - 1
+			if not char == charIndication:
+				return idx
 		return len(line)
+
+	def getRoot(self):
+		return self.rootNode
 
 
 
@@ -101,13 +108,16 @@ class Wikitext:
 		return self.wikitext
 
 	def getWikitextTitle(self):
-		return self.title
+		return self.pageTitle
 
 def main():
 	with open('Friedrich_Nietzsche.json', 'r') as filehandle:
 		externalJSONContent = filehandle.read()
-		wikiquoteIR = WikiquoteIR()
-		wikiquoteIR.buildFromJSON(externalJSONContent)
+		wikitext = Wikitext(externalJSONContent)
+		irinstance = WikitextIR(wikitext)
+		rootNode = irinstance.getRoot()
+		children = rootNode.getChildren()
+		print len(children[4].getChildren())
 
 if __name__ == "__main__":
 	main()
