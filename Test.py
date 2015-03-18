@@ -4,7 +4,7 @@ import sys
 import subprocess
 
 from WikiquotesRetriever import WikiquotesRetriever, InvalidTitleException
-from Processor import WikiquoteIR
+from IRBuilder import Wikitext
 
 REBUILDBASELINES = False
 
@@ -30,24 +30,27 @@ class WikiquoteIRBaselines:
 	def rebuildForTestCorrectWikitextBuilt(self):
 		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
-			wikiquoteIR = WikiquoteIR()
-			wikitext = wikiquoteIR.extractWikitext(externalJSONContent)
-			wikitextUTF8 = wikitext.encode('UTF-8')
+			wikitext = Wikitext(externalJSONContent)
 			with open('Friedrich_Nietzsche.wikitext', 'w') as writehandle:
-				writehandle.write(wikitextUTF8)
+				writehandle.write(wikitext.getWikitextString())
 
 
-class WikiquoteIRTest(unittest.TestCase):
+class WikitextExtractor(unittest.TestCase):
 
 	def testCorrectWikitextBuild(self):
 		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
-			wikiquoteIR = WikiquoteIR()
-			wikitext = wikiquoteIR.extractWikitext(externalJSONContent)
-			wikitextUTF8 = wikitext.encode('UTF-8')
+			wikitext= Wikitext(externalJSONContent)
 			with open('Friedrich_Nietzsche.wikitext', 'r') as readhandle:
 				wikitextbaseline = readhandle.read()
-				self.assertTrue(wikitextUTF8 == wikitextbaseline)
+				self.assertTrue(wikitext.getWikitextString() == wikitextbaseline)
+
+	def testOtherWikitextBuild(self):
+		wikiRetriever = WikiquotesRetriever()
+		wikiRetriever.setupNetworking()
+		onlineJSONContent = wikiRetriever.downloadQuote("Baruch Spinoza")
+		wikiRetriever.closeNetworking()
+		wikitext = Wikitext(onlineJSONContent)
 
 
 class WikiquotesRetrieverBaselines:
@@ -59,6 +62,13 @@ class WikiquotesRetrieverBaselines:
 
 
 class WikiquotesRetrieverTest(unittest.TestCase):
+
+	def testDownloadingVarious(self):
+		wikiRetriever = WikiquotesRetriever()
+		wikiRetriever.setupNetworking()
+		wikiRetriever.downloadQuote("Friedrich_Nietzsche")
+		wikiRetriever.downloadQuote("Baruch Spinoza")
+		wikiRetriever.closeNetworking()
 
 	def testCorrectJSONDownloaded(self):
 		wikiRetriever = WikiquotesRetriever()
