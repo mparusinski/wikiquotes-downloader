@@ -27,6 +27,15 @@ class WikitextIRNode:
 	def getChildren(self):
 		return self.children
 
+	def toStringList(self, tabulation):
+		"""Build a list of strings"""
+		firstItem = tabulation + self.currentString
+		accum = [firstItem]
+		for child in self.children:
+			childStringList = child.toStringList(tabulation + "  ")
+			accum = accum + childStringList
+		return accum
+
 
 class WikitextIR:
 	"""Defines an internal representation of a wikitext page"""
@@ -71,6 +80,9 @@ class WikitextIR:
 	def getRoot(self):
 		return self.rootNode
 
+	def toString(self):
+		stringList = self.rootNode.toStringList("")
+		return "\n".join(stringList)
 
 
 class Wikitext:
@@ -89,8 +101,7 @@ class Wikitext:
 		self.pageTitle = pageInternal['title']
 		pageContent = pageInternal['revisions']
 		pageElement = pageContent[0]
-		wikitext = pageElement["*"]
-		self.wikitext = wikitext.encode('UTF-8')
+		self.wikitext = pageElement["*"]
 
 	def __extractWikitext(self, jsonString):
 		jsonContent = json.loads(jsonString)
@@ -115,9 +126,7 @@ def main():
 		externalJSONContent = filehandle.read()
 		wikitext = Wikitext(externalJSONContent)
 		irinstance = WikitextIR(wikitext)
-		rootNode = irinstance.getRoot()
-		children = rootNode.getChildren()
-		print len(children[4].getChildren())
+		print irinstance.toString()
 
 if __name__ == "__main__":
 	main()

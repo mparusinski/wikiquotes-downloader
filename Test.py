@@ -32,7 +32,7 @@ class WikiquoteIRBaselines:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			with open('Friedrich_Nietzsche.wikitext', 'w') as writehandle:
-				writehandle.write(wikitext.getWikitextString())
+				writehandle.write(wikitext.getWikitextString().encode('UTF-8'))
 
 
 class WikitextExtractor(unittest.TestCase):
@@ -40,10 +40,10 @@ class WikitextExtractor(unittest.TestCase):
 	def testCorrectWikitextBuild(self):
 		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
-			wikitext= Wikitext(externalJSONContent)
+			wikitext = Wikitext(externalJSONContent)
 			with open('Friedrich_Nietzsche.wikitext', 'r') as readhandle:
 				wikitextbaseline = readhandle.read()
-				self.assertTrue(wikitext.getWikitextString() == wikitextbaseline)
+				self.assertTrue(wikitext.getWikitextString().encode('UTF-8') == wikitextbaseline)
 
 	def testOtherWikitextBuild(self):
 		wikiRetriever = WikiquotesRetriever()
