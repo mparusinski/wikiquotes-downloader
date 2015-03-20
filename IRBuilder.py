@@ -82,8 +82,17 @@ class WikitextIR:
 
 	def toString(self):
 		stringList = self.rootNode.toStringList("")
-		return "\n".join(stringList)
+		stringNoneFormatted = "\n".join(stringList)
+		return stringNoneFormatted.encode('UTF-8')
 
+
+class InvalidWikitext(Exception):
+
+	def __init__(self, description):
+		self.description = description
+
+	def __str__(self):
+		return repr(self.description)
 
 class Wikitext:
 	"""Wikitext that is embedded in a jsonString"""
@@ -104,9 +113,12 @@ class Wikitext:
 		self.wikitext = pageElement["*"]
 
 	def __extractWikitext(self, jsonString):
-		jsonContent = json.loads(jsonString)
-		page = self.__getAddressJSON(jsonContent, self.keyString)
-		self.__processPage(page)
+		try:
+			jsonContent = json.loads(jsonString)
+			page = self.__getAddressJSON(jsonContent, self.keyString)
+			self.__processPage(page)
+		except ValueError:
+			raise InvalidWikitext("Not a valid JSON file")
 
 	def __getAddressJSON(self, json, addressString):
 		tokens = addressString.split('.')

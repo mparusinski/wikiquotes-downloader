@@ -3,8 +3,8 @@ import os
 import sys
 import subprocess
 
-from WikiquotesRetriever import WikiquotesRetriever, InvalidTitleException
-from IRBuilder import Wikitext
+from WikiquotesRetriever import *
+from IRBuilder import *
 
 REBUILDBASELINES = False
 
@@ -24,7 +24,30 @@ def saferSystemCall(call):
 			print "Please type YES or NO!"
 
 
-class WikiquoteIRBaselines:
+class WikitextIRBaselines:
+
+	def rebuildForTestCorrectWikitextIR(self):
+		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			with open('Friedrich_Nietzsche.wikitextIR', 'w') as writehandle:
+				writehandle.write(wikitextIR.toString())
+
+
+class WikitextIRTest(unittest.TestCase):
+
+	def testCorrectWikitextIR(self):
+		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			with open('Friedrich_Nietzsche.wikitextIR', 'r') as baselineFileHandle:
+				baselineIR = baselineFileHandle.read()
+				self.assertTrue(baselineIR == wikitextIR.toString())
+
+
+class WikitextExtractorBaselines:
 	"""Class to rebuild baselines"""
 
 	def rebuildForTestCorrectWikitextBuilt(self):
@@ -35,7 +58,7 @@ class WikiquoteIRBaselines:
 				writehandle.write(wikitext.getWikitextString().encode('UTF-8'))
 
 
-class WikitextExtractor(unittest.TestCase):
+class WikitextExtractorTest(unittest.TestCase):
 
 	def testCorrectWikitextBuild(self):
 		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
@@ -51,6 +74,10 @@ class WikitextExtractor(unittest.TestCase):
 		onlineJSONContent = wikiRetriever.downloadQuote("Baruch Spinoza")
 		wikiRetriever.closeNetworking()
 		wikitext = Wikitext(onlineJSONContent)
+
+	def testEmptyWikitext(self):
+		with self.assertRaises(InvalidWikitext):
+			wikitext = Wikitext("")
 
 
 class WikiquotesRetrieverBaselines:
@@ -111,8 +138,11 @@ def rebuildBaselines():
 	print "!!!!Execute at your own risk!!!!"
 	wikiquotesRetrieverBaselines = WikiquotesRetrieverBaselines()
 	wikiquotesRetrieverBaselines.rebuildForTestCorrectJSONDownloaded()
-	wikiquoteIRBaselines = WikiquoteIRBaselines()
-	wikiquoteIRBaselines.rebuildForTestCorrectWikitextBuilt()
+	wikitextExtractorBaselines = WikitextExtractorBaselines()
+	wikitextExtractorBaselines.rebuildForTestCorrectWikitextBuilt()
+	wikitextIRBaselines = WikitextIRBaselines()
+	wikitextIRBaselines.rebuildForTestCorrectWikitextIR()
+
 
 def main():
 	if REBUILDBASELINES:
