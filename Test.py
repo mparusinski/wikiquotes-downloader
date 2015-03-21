@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import re
 import subprocess
 
 from WikiquotesRetriever import *
@@ -25,7 +26,23 @@ def saferSystemCall(call):
 			print "Please type YES or NO!"
 
 
-class IRTransformationsBaselines:
+class BaselineBuilder(object):
+
+	def __inheritors(self):
+		return BaselineBuilder.__subclasses__()
+
+	def runBaselinesBuilders(self):
+		regex = re.compile('^rebuild')
+		subclassesList = self.__inheritors()
+		for subclass in subclassesList:
+			subclassName = subclass.__name__
+			obj = globals()[subclassName]()
+			methods = [method for method in dir(subclass) if callable(getattr(obj, method))]
+			for method in methods:
+				if regex.match(method):
+					eval(subclassName + '().' + method + '()')
+
+class IRTransformationsBaselines(BaselineBuilder):
 
 	def rebuildForTestCorrectDisputedRemoval(self):
 		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
@@ -94,7 +111,7 @@ class IRTransformationsTest(unittest.TestCase):
 				self.assertTrue(baseline == quotesAboutXRemover.getIR().toString())
 
 
-class WikitextIRBaselines:
+class WikitextIRBaselines(BaselineBuilder):
 
 	def rebuildForTestCorrectWikitextIR(self):
 		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
@@ -117,7 +134,7 @@ class WikitextIRTest(unittest.TestCase):
 				self.assertTrue(baselineIR == wikitextIR.toString())
 
 
-class WikitextExtractorBaselines:
+class WikitextExtractorBaselines(BaselineBuilder):
 	"""Class to rebuild baselines"""
 
 	def rebuildForTestCorrectWikitextBuilt(self):
@@ -150,7 +167,7 @@ class WikitextExtractorTest(unittest.TestCase):
 			wikitext = Wikitext("")
 
 
-class WikiquotesRetrieverBaselines:
+class WikiquotesRetrieverBaselines(BaselineBuilder):
 	"""Class to rebuild baselines"""
 
 	def rebuildForTestCorrectJSONDownloaded(self):
@@ -203,20 +220,12 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 			onlineJSONContent = wikiRetriever.downloadQuote("SpinozaBanana")
 			wikiRetriever.closeNetworking()
 
+
 def rebuildBaselines():
 	print "!!!!Rebuilding baselines instead of running test!!!!"
 	print "!!!!Execute at your own risk!!!!"
-	wikiquotesRetrieverBaselines = WikiquotesRetrieverBaselines()
-	wikiquotesRetrieverBaselines.rebuildForTestCorrectJSONDownloaded()
-	wikitextExtractorBaselines = WikitextExtractorBaselines()
-	wikitextExtractorBaselines.rebuildForTestCorrectWikitextBuilt()
-	wikitextIRBaselines = WikitextIRBaselines()
-	wikitextIRBaselines.rebuildForTestCorrectWikitextIR()
-	irTransformationsBaselines = IRTransformationsBaselines()
-	irTransformationsBaselines.rebuildForTestCorrectDisputedRemoval()
-	irTransformationsBaselines.rebuildForTestCorrectMisattributedRemoval()
-	irTransformationsBaselines.rebuildForTestCorrectQuoteAboutXRemoval()
-
+	baselineBuilder = BaselineBuilder()
+	baselineBuilder.runBaselinesBuilders()
 
 def main():
 	if REBUILDBASELINES:
