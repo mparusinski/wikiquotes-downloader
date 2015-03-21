@@ -6,7 +6,7 @@ import subprocess
 from WikiquotesRetriever import *
 from IRBuilder import *
 
-REBUILDBASELINES = True
+REBUILDBASELINES = False
 
 def saferSystemCall(call):
 	print "---------------------------------------------------------------------"
