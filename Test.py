@@ -6,7 +6,7 @@ import subprocess
 from WikiquotesRetriever import *
 from IRBuilder import *
 
-REBUILDBASELINES = False
+REBUILDBASELINES = True
 
 def saferSystemCall(call):
 	print "---------------------------------------------------------------------"
@@ -27,22 +27,22 @@ def saferSystemCall(call):
 class WikitextIRBaselines:
 
 	def rebuildForTestCorrectWikitextIR(self):
-		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			with open('Friedrich_Nietzsche.wikitextIR', 'w') as writehandle:
+			with open('baselines/Friedrich_Nietzsche.wikitextIR', 'w') as writehandle:
 				writehandle.write(wikitextIR.toString())
 
 
 class WikitextIRTest(unittest.TestCase):
 
 	def testCorrectWikitextIR(self):
-		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			with open('Friedrich_Nietzsche.wikitextIR', 'r') as baselineFileHandle:
+			with open('baselines/Friedrich_Nietzsche.wikitextIR', 'r') as baselineFileHandle:
 				baselineIR = baselineFileHandle.read()
 				self.assertTrue(baselineIR == wikitextIR.toString())
 
@@ -51,20 +51,20 @@ class WikitextExtractorBaselines:
 	"""Class to rebuild baselines"""
 
 	def rebuildForTestCorrectWikitextBuilt(self):
-		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
-			with open('Friedrich_Nietzsche.wikitext', 'w') as writehandle:
+			with open('baselines/Friedrich_Nietzsche.wikitext', 'w') as writehandle:
 				writehandle.write(wikitext.getWikitextString().encode('UTF-8'))
 
 
 class WikitextExtractorTest(unittest.TestCase):
 
 	def testCorrectWikitextBuild(self):
-		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
-			with open('Friedrich_Nietzsche.wikitext', 'r') as readhandle:
+			with open('baselines/Friedrich_Nietzsche.wikitext', 'r') as readhandle:
 				wikitextbaseline = readhandle.read()
 				self.assertTrue(wikitext.getWikitextString().encode('UTF-8') == wikitextbaseline)
 
@@ -85,7 +85,7 @@ class WikiquotesRetrieverBaselines:
 
 	def rebuildForTestCorrectJSONDownloaded(self):
 		quoteURL = "\"http://en.wikiquote.org/w/api.php?format=json&action=query&titles=Friedrich%20Nietzsche&prop=revisions&rvprop=content\""
-		saferSystemCall('curl ' + quoteURL + ' > Friedrich_Nietzsche.json')
+		saferSystemCall('curl ' + quoteURL + ' > baselines/Friedrich_Nietzsche.json')
 
 
 class WikiquotesRetrieverTest(unittest.TestCase):
@@ -102,7 +102,7 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 		wikiRetriever.setupNetworking()
 		onlineJSONContent = wikiRetriever.downloadQuote("Friedrich Nietzsche")
 		wikiRetriever.closeNetworking()
-		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 		areEqual = externalJSONContent == onlineJSONContent
 		self.assertTrue(areEqual)
@@ -112,7 +112,7 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 		wikiRetriever.setupNetworking()
 		onlineJSONContent = wikiRetriever.downloadQuote("Plato")
 		wikiRetriever.closeNetworking()
-		with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 		areEqual = externalJSONContent == onlineJSONContent
 		self.assertTrue(not areEqual)
