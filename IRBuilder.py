@@ -1,4 +1,5 @@
 import json
+import re
 from StringIO import StringIO
 
 def inspectJSONObject(json):
@@ -10,6 +11,7 @@ def inspectJSONList(json):
 	for elem in json:
 		stringElem = unicode(elem)
 		print stringElem[0:100]
+
 
 class WikitextIRNode:
 	"""Defines a node in the internal representation of a wikitext page"""
@@ -27,6 +29,9 @@ class WikitextIRNode:
 	def getChildren(self):
 		return self.children
 
+	def getString(self):
+		return self.currentString
+
 	def toStringList(self, tabulation):
 		"""Build a list of strings"""
 		firstItem = tabulation + self.currentString
@@ -35,6 +40,14 @@ class WikitextIRNode:
 			childStringList = child.toStringList(tabulation + "  ")
 			accum = accum + childStringList
 		return accum
+
+	def findChildren(self, regex):
+		# assuming regex is precompiled
+		foundList = []
+		for child in self.children:
+			if regex.match(child.getString()):
+				foundList.append(child)
+		return foundList
 
 
 class WikitextIR:
@@ -69,10 +82,10 @@ class WikitextIR:
 					currentDepth = depth
 
 	def __validLine(self, line):
-		return line.startswith("==") or (len(line) > 0 and line[0] == '*')
+		return line.startswith("== ") or (len(line) > 0 and line[0] == '*')
 
 	def __findDepth(self, line):
-		if line.startswith("=="):
+		if line.startswith("== "):
 			return 1, line[2:]
 		else:
 			for idx, char in enumerate(line):
