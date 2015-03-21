@@ -47,14 +47,14 @@ class WikitextIR:
 		currentNode = self.rootNode
 		currentDepth = 0
 		for line in textToParse.splitlines():
-			if self.__validLine(line, '*'):
-				depth = self.__findDepth(line, '*')
+			if self.__validLine(line):
+				depth, lineSimplified = self.__findDepth(line)
 				if depth > currentDepth: # Going deeper
 					if not (depth - currentDepth == 1):
 						# TODO Raise appropriate error
 						print "Parse error! Line " + line + " is not invalid"
 					else:
-						newNode = WikitextIRNode(line[depth:], parentNode=currentNode)
+						newNode = WikitextIRNode(lineSimplified, parentNode=currentNode)
 						currentNode.addChild(newNode)
 						currentNode = newNode
 						currentDepth = depth
@@ -63,19 +63,22 @@ class WikitextIR:
 					for i in xrange(dropAmount):
 						currentNode = currentNode.getParent()
 					parentNode = currentNode.getParent()
-					newNode = WikitextIRNode(line[depth:], parentNode=parentNode)
+					newNode = WikitextIRNode(lineSimplified, parentNode=parentNode)
 					parentNode.addChild(newNode)
 					currentNode = newNode
 					currentDepth = depth
 
-	def __validLine(self, line, char):
-		return len(line) > 0  and line[0] == char
+	def __validLine(self, line):
+		return line.startswith("==") or (len(line) > 0 and line[0] == '*')
 
-	def __findDepth(self, line, charIndication):
-		for idx, char in enumerate(line):
-			if not char == charIndication:
-				return idx
-		return len(line)
+	def __findDepth(self, line):
+		if line.startswith("=="):
+			return 1, line[2:]
+		else:
+			for idx, char in enumerate(line):
+				if not char == '*':
+					return idx + 1, line[idx:] 
+		return -1
 
 	def getRoot(self):
 		return self.rootNode
