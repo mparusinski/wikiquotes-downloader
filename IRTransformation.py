@@ -19,6 +19,9 @@ class AbstractIRTransformation(object):
 		raise UndefinedTransformFunction(self.__class__.__name__)
 		return None
 
+	def getIR(self):
+		return self.wikitextIR
+
 
 class EliminateMisattributedIRTransformation(AbstractIRTransformation):
 

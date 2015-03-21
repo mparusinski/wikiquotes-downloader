@@ -5,6 +5,7 @@ import subprocess
 
 from WikiquotesRetriever import *
 from IRBuilder import *
+from IRTransformation import *
 
 REBUILDBASELINES = False
 
@@ -22,6 +23,75 @@ def saferSystemCall(call):
 			validResponse = True
 		else:
 			print "Please type YES or NO!"
+
+
+class IRTransformationsBaselines:
+
+	def rebuildForTestCorrectDisputedRemoval(self):
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			disputedRemover = EliminateDisputedIRTransformation(wikitextIR)
+			disputedRemover.transform()
+			with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'w') as writehandle:
+				writehandle.write(disputedRemover.getIR().toString())
+
+	def rebuildForTestCorrectMisattributedRemoval(self):
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			misattributedRemover = EliminateMisattributedIRTransformation(wikitextIR)
+			misattributedRemover.transform()
+			with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'w') as writehandle:
+				writehandle.write(misattributedRemover.getIR().toString())
+
+	def rebuildForTestCorrectQuoteAboutXRemoval(self):
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			quotesAboutXRemover = EliminateQuotesAboutXIRTransformation(wikitextIR)
+			quotesAboutXRemover.transform()
+			with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'w') as writehandle:
+				writehandle.write(quotesAboutXRemover.getIR().toString())
+
+
+class IRTransformationsTest(unittest.TestCase):
+
+	def testCorrectDisputedRemoval(self):
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			disputedRemover = EliminateDisputedIRTransformation(wikitextIR)
+			disputedRemover.transform()
+			with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'r') as baselineFileHandle:
+				baseline = baselineFileHandle.read()
+				self.assertTrue(baseline == disputedRemover.getIR().toString())
+
+	def testCorrectMisattributedRemoval(self):
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			misattributedRemover = EliminateMisattributedIRTransformation(wikitextIR)
+			misattributedRemover.transform()
+			with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'r') as baselineFileHandle:
+				baseline = baselineFileHandle.read()
+				self.assertTrue(baseline == misattributedRemover.getIR().toString())
+
+	def testCorrectQuoteAboutXRemoval(self):
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIR = WikitextIR(wikitext)
+			quotesAboutXRemover = EliminateQuotesAboutXIRTransformation(wikitextIR)
+			quotesAboutXRemover.transform()
+			with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'r') as baselineFileHandle:
+				baseline = baselineFileHandle.read()
+				self.assertTrue(baseline == quotesAboutXRemover.getIR().toString())
 
 
 class WikitextIRBaselines:
@@ -142,6 +212,10 @@ def rebuildBaselines():
 	wikitextExtractorBaselines.rebuildForTestCorrectWikitextBuilt()
 	wikitextIRBaselines = WikitextIRBaselines()
 	wikitextIRBaselines.rebuildForTestCorrectWikitextIR()
+	irTransformationsBaselines = IRTransformationsBaselines()
+	irTransformationsBaselines.rebuildForTestCorrectDisputedRemoval()
+	irTransformationsBaselines.rebuildForTestCorrectMisattributedRemoval()
+	irTransformationsBaselines.rebuildForTestCorrectQuoteAboutXRemoval()
 
 
 def main():
