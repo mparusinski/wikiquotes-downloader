@@ -49,6 +49,12 @@ class WikitextIRNode:
 				foundList.append(child)
 		return foundList
 
+	def removeChildren(self, regex):
+		childrenListCopy = list(self.children) # copy, but not deepcopy
+		for child in childrenListCopy:
+			if regex.match(child.getString()):
+				self.children.remove(child)
+
 
 class WikitextIR:
 	"""Defines an internal representation of a wikitext page"""
@@ -150,7 +156,7 @@ class Wikitext:
 		return self.pageTitle
 
 def main():
-	with open('Friedrich_Nietzsche.json', 'r') as filehandle:
+	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 		externalJSONContent = filehandle.read()
 		wikitext = Wikitext(externalJSONContent)
 		irinstance = WikitextIR(wikitext)
