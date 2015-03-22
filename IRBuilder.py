@@ -23,6 +23,9 @@ class WikitextIRNode:
 	def addChild(self, wikitextIRNode):
 		self.children.append(wikitextIRNode)
 
+	def setString(self, newString):
+		self.currentString = newString
+
 	def getParent(self):
 		return self.parentNode
 
@@ -41,7 +44,11 @@ class WikitextIRNode:
 			accum = accum + childStringList
 		return accum
 
-	def findChildren(self, regex):
+	def toString(self):
+		stringList = self.toStringList("")
+		return "\n".join(stringList)
+
+	def findChildrenUsingRegex(self, regex):
 		# assuming regex is precompiled
 		foundList = []
 		for child in self.children:
@@ -49,11 +56,21 @@ class WikitextIRNode:
 				foundList.append(child)
 		return foundList
 
-	def removeChildren(self, regex):
+	def findChildrenUsingFunction(self, function):
+		foundList = []
+		for child in self.children:
+			if function(child):
+				foundList.append(child)
+		return foundList
+
+	def removeChildrenUsingRegex(self, regex):
 		childrenListCopy = list(self.children) # copy, but not deepcopy
 		for child in childrenListCopy:
 			if regex.match(child.getString()):
 				self.children.remove(child)
+
+	def removeChild(self, child):
+		self.children.remove(child)
 
 
 class WikitextIR:

@@ -1,5 +1,5 @@
 import re
-from IRBuilder import WikitextIR, Wikitext
+from IRBuilder import *
 
 class UndefinedTransformFunction(Exception):
 
@@ -31,7 +31,7 @@ class EliminateMisattributedIRTransformation(AbstractIRTransformation):
 
 	def transform(self):
 		rootNode = self.wikitextIR.getRoot()
-		rootNode.removeChildren(self.misattributedRegex)
+		rootNode.removeChildrenUsingRegex(self.misattributedRegex)
 		return self.wikitextIR
 
 
@@ -43,7 +43,7 @@ class EliminateDisputedIRTransformation(AbstractIRTransformation):
 
 	def transform(self):
 		rootNode = self.wikitextIR.getRoot()
-		rootNode.removeChildren(self.disputedRegex)
+		rootNode.removeChildrenUsingRegex(self.disputedRegex)
 		return self.wikitextIR
 
 
@@ -55,8 +55,46 @@ class EliminateQuotesAboutXIRTransformation(AbstractIRTransformation):
 
 	def transform(self):
 		rootNode = self.wikitextIR.getRoot()
-		rootNode.removeChildren(self.aboutXRegex)
+		rootNode.removeChildrenUsingRegex(self.aboutXRegex)
 		return self.wikitextIR
+
+
+class EliminateTranslationsTransformation(AbstractIRTransformation):
+
+	def __init__(self, wikitextIR):
+		super(self.__class__, self).__init__(wikitextIR)
+		self.quotesRegex = re.compile('== Quotes ==')
+		self.translationRegex = re.compile('\s\'\'[a-zA-Z\.]')
+		def matchTranslationFunction(node):
+			nodeString = node.getString()
+			nodeChildren = node.getChildren()
+			return nodeString.startswith("* ") and len(nodeChildren) >= 2 and self.translationRegex.search(nodeString)
+		self.matchTranslationFunction = matchTranslationFunction
+
+	def transform(self):
+		rootNode = self.wikitextIR.getRoot()
+		quotesSubnodes = rootNode.findChildrenUsingRegex(self.quotesRegex)
+		numSubnodes = len(quotesSubnodes)
+		if numSubnodes > 1:
+			raise InvalidWikitext("There is more than one \"QUOTES\" section. Such a format is not supported")
+			return self.wikitextIR
+		elif numSubnodes == 0:
+			raise InvalidWikitext("No \"QUOTES\" section found. Please contact developer")
+			return self.wikitextIR
+		else:
+			quotesNode = quotesSubnodes[0]
+			translatedNodes = quotesNode.findChildrenUsingFunction(self.matchTranslationFunction)
+			for nodeTranslated in translatedNodes:
+				self.__fixNode(nodeTranslated)
+			return self.wikitextIR
+
+	def __fixNode(self, nodeTranslated):
+		children = nodeTranslated.getChildren()
+		firstChild = children[0]
+		newString = firstChild.getString()
+		newString = newString[1:] # drop the first '*'
+		nodeTranslated.setString(newString)
+		nodeTranslated.removeChild(firstChild)
 
 
 def main():
@@ -71,6 +109,8 @@ def main():
 		transformer1.transform()
 		transformer2.transform()
 		transformer3.transform()
+		translatedNodesTransformer = EliminateTranslationsTransformation(irinstance)
+		translatedNodesTransformer.transform()
 		print irinstance.toString()
 
 if __name__ == '__main__':
