@@ -48,6 +48,11 @@ class WikitextIRNode:
 		stringList = self.toStringList("")
 		return "\n".join(stringList)
 
+	def doForAllAncestry(self, function):
+		for child in self.children:
+			function(child)
+			child.doForAllAncestry(function)
+
 	def findChildrenUsingRegex(self, regex):
 		# assuming regex is precompiled
 		foundList = []

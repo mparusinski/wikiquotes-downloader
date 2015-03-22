@@ -152,6 +152,20 @@ class RemoveSecondDepth(AbstractIRTransformation):
 		for child in children:
 			child.removeChildren()
 
+class RemoveLeadingStars(AbstractIRTransformation):
+	""" This assumes sections have been removed """
+
+	def __init__(self, wikitextIR):
+		super(self.__class__, self).__init__(wikitextIR)
+
+	def transform(self):
+		def cleaningFunction(node):
+			string = node.getString()
+			newString = string.lstrip('* ')
+			node.setString(newString)
+		rootNode = self.wikitextIR.getRoot()
+		rootNode.doForAllAncestry(cleaningFunction)
+
 
 irTransformersRegistry = IRTransformersRegistry()
 irTransformersRegistry.addTransformer('removeMisattributed', 'RemoveMisattributed')
@@ -160,6 +174,7 @@ irTransformersRegistry.addTransformer('removeTranslations', 'RemoveTranslations'
 irTransformersRegistry.addTransformer('removeQuotesAboutX', 'RemoveQuotesAboutX')
 irTransformersRegistry.addTransformer('removeSections', 'RemoveSections')
 irTransformersRegistry.addTransformer('removeSecondDepth', 'RemoveSecondDepth')
+irTransformersRegistry.addTransformer('removeLeadingStars', 'RemoveLeadingStars')
 
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
@@ -174,6 +189,7 @@ def main():
 		process.applyTransformer('removeTranslations')
 		process.applyTransformer('removeSections')
 		process.applyTransformer('removeSecondDepth')
+		process.applyTransformer('removeLeadingStars')
 		process.runProcess()
 		print irinstance.toString()
 
