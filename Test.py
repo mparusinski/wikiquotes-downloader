@@ -3,6 +3,7 @@ import os
 import sys
 import re
 import subprocess
+import copy
 
 from WikiquotesRetriever import *
 from IRBuilder import *
@@ -109,6 +110,22 @@ class IRTransformationsTest(unittest.TestCase):
 			with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'r') as baselineFileHandle:
 				baseline = baselineFileHandle.read()
 				self.assertTrue(baseline == quotesAboutXRemover.getIR().toString())
+
+	def testRemoversCommute(self):
+		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+			externalJSONContent = filehandle.read()
+			wikitext = Wikitext(externalJSONContent)
+			wikitextIRLeft = WikitextIR(wikitext)
+			wikitextIRRight = copy.deepcopy(wikitextIRLeft)
+			misattributedRemoverLeft = EliminateMisattributedIRTransformation(wikitextIRLeft)
+			disputedRemoverLeft = EliminateDisputedIRTransformation(wikitextIRLeft)
+			disputedRemoverRight = EliminateDisputedIRTransformation(wikitextIRRight)
+			misattributedRemoverRight = EliminateMisattributedIRTransformation(wikitextIRRight)
+			misattributedRemoverLeft.transform()
+			disputedRemoverLeft.transform()
+			disputedRemoverRight.transform()
+			misattributedRemoverRight.transform()
+			self.assertTrue(wikitextIRLeft.toString() == wikitextIRRight.toString())
 
 
 class WikitextIRBaselines(BaselineBuilder):
