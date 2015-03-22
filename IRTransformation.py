@@ -146,7 +146,7 @@ irTransformersRegistry.addTransformer('removeMisattributed', 'RemoveMisattribute
 irTransformersRegistry.addTransformer('removeDisputed', 'RemoveDisputed')
 irTransformersRegistry.addTransformer('removeTranslations', 'RemoveTranslations')
 irTransformersRegistry.addTransformer('removeQuotesAboutX', 'RemoveQuotesAboutX')
-irTransformersRegistry.addTransformer('removeSections', 'RemoveSectionsTransformation')
+irTransformersRegistry.addTransformer('removeSections', 'RemoveSections')
 
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
