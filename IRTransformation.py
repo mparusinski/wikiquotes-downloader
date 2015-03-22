@@ -13,8 +13,6 @@ class IRTransformersRegistry(object):
 		return self.registry[transformerName]
 	
 
-irTransformersRegistry = IRTransformersRegistry()
-
 class TransformationProcess(object):
 
 	def __init__(self, wikitextIR):
@@ -45,9 +43,8 @@ class UndefinedTransformFunction(Exception):
 
 class AbstractIRTransformation(object):
 
-	def __init__(self, wikitextIR, transformerName):
+	def __init__(self, wikitextIR):
 		self.wikitextIR = wikitextIR
-		self.__register(transformerName)
 
 	def transform(self):
 		# Starts doing the transform
@@ -57,14 +54,11 @@ class AbstractIRTransformation(object):
 	def getIR(self):
 		return self.wikitextIR
 
-	def __register(self, transformerName):
-		irTransformersRegistry.addTransformer(transformerName, self.__class__.__name__)
-
 
 class EliminateMisattributedIRTransformation(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
-		super(self.__class__, self).__init__(wikitextIR, 'eliminateMisattributed')
+		super(self.__class__, self).__init__(wikitextIR)
 		self.misattributedRegex = re.compile('== Misattributed ==')
 
 	def transform(self):
@@ -76,7 +70,7 @@ class EliminateMisattributedIRTransformation(AbstractIRTransformation):
 class EliminateDisputedIRTransformation(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
-		super(self.__class__, self).__init__(wikitextIR, 'eliminateDisputed')
+		super(self.__class__, self).__init__(wikitextIR)
 		self.disputedRegex = re.compile('== Disputed ==')
 
 	def transform(self):
@@ -88,7 +82,7 @@ class EliminateDisputedIRTransformation(AbstractIRTransformation):
 class EliminateQuotesAboutXIRTransformation(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
-		super(self.__class__, self).__init__(wikitextIR, 'eliminateQuotesAboutX')
+		super(self.__class__, self).__init__(wikitextIR)
 		self.aboutXRegex = re.compile('== Quotes about [a-zA-Z\s]+ ==')
 
 	def transform(self):
@@ -100,7 +94,7 @@ class EliminateQuotesAboutXIRTransformation(AbstractIRTransformation):
 class EliminateTranslationsTransformation(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
-		super(self.__class__, self).__init__(wikitextIR, 'eliminateTranslations')
+		super(self.__class__, self).__init__(wikitextIR)
 		self.quotesRegex = re.compile('== Quotes ==')
 		self.translationRegex = re.compile('\s\'\'[a-zA-Z\.]')
 		def matchTranslationFunction(node):
@@ -135,20 +129,24 @@ class EliminateTranslationsTransformation(AbstractIRTransformation):
 		nodeTranslated.removeChild(firstChild)
 
 
+irTransformersRegistry = IRTransformersRegistry()
+irTransformersRegistry.addTransformer('eliminateMisattributed', 'EliminateMisattributedIRTransformation')
+irTransformersRegistry.addTransformer('eliminateDisputed', 'EliminateDisputedIRTransformation')
+irTransformersRegistry.addTransformer('eliminateTranslations', 'EliminateTranslationsTransformation')
+irTransformersRegistry.addTransformer('eliminateQuotesAboutX', 'EliminateQuotesAboutXIRTransformation')
+
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 		externalJSONContent = filehandle.read()
 		wikitext = Wikitext(externalJSONContent)
 		irinstance = WikitextIR(wikitext)
 		# Technically they should work on both on the same instance
-		transformer1 = EliminateMisattributedIRTransformation(irinstance)
-		transformer2 = EliminateDisputedIRTransformation(irinstance)
-		transformer3 = EliminateQuotesAboutXIRTransformation(irinstance)
-		transformer1.transform()
-		transformer2.transform()
-		transformer3.transform()
-		translatedNodesTransformer = EliminateTranslationsTransformation(irinstance)
-		translatedNodesTransformer.transform()
+		process = TransformationProcess(irinstance)
+		process.applyTransformer('eliminateMisattributed')
+		process.applyTransformer('eliminateDisputed')
+		process.applyTransformer('eliminateQuotesAboutX')
+		process.applyTransformer('eliminateTranslations')
+		process.runProcess()
 		print irinstance.toString()
 
 if __name__ == '__main__':
