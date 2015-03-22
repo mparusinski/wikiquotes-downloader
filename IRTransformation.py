@@ -9,6 +9,7 @@ class UndefinedTransformFunction(Exception):
 	def __str__(self):
 		return repr(self.className + " does not implement the abstract function transform")
 
+
 class AbstractIRTransformation(object):
 
 	def __init__(self, wikitextIR):
