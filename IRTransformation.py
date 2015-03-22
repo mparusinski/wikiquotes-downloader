@@ -55,7 +55,7 @@ class AbstractIRTransformation(object):
 		return self.wikitextIR
 
 
-class EliminateMisattributedIRTransformation(AbstractIRTransformation):
+class RemoveMisattributed(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
 		super(self.__class__, self).__init__(wikitextIR)
@@ -67,7 +67,7 @@ class EliminateMisattributedIRTransformation(AbstractIRTransformation):
 		return self.wikitextIR
 
 
-class EliminateDisputedIRTransformation(AbstractIRTransformation):
+class RemoveDisputed(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
 		super(self.__class__, self).__init__(wikitextIR)
@@ -79,7 +79,7 @@ class EliminateDisputedIRTransformation(AbstractIRTransformation):
 		return self.wikitextIR
 
 
-class EliminateQuotesAboutXIRTransformation(AbstractIRTransformation):
+class RemoveQuotesAboutX(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
 		super(self.__class__, self).__init__(wikitextIR)
@@ -91,7 +91,7 @@ class EliminateQuotesAboutXIRTransformation(AbstractIRTransformation):
 		return self.wikitextIR
 
 
-class EliminateTranslationsTransformation(AbstractIRTransformation):
+class RemoveTranslations(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
 		super(self.__class__, self).__init__(wikitextIR)
@@ -129,7 +129,7 @@ class EliminateTranslationsTransformation(AbstractIRTransformation):
 		nodeTranslated.removeChild(firstChild)
 
 
-class RemoveSectionsTransformation(AbstractIRTransformation):
+class RemoveSections(AbstractIRTransformation):
 
 	def __init__(self, wikitextIR):
 		super(self.__class__, self).__init__(wikitextIR)
@@ -142,10 +142,10 @@ class RemoveSectionsTransformation(AbstractIRTransformation):
 
 
 irTransformersRegistry = IRTransformersRegistry()
-irTransformersRegistry.addTransformer('eliminateMisattributed', 'EliminateMisattributedIRTransformation')
-irTransformersRegistry.addTransformer('eliminateDisputed', 'EliminateDisputedIRTransformation')
-irTransformersRegistry.addTransformer('eliminateTranslations', 'EliminateTranslationsTransformation')
-irTransformersRegistry.addTransformer('eliminateQuotesAboutX', 'EliminateQuotesAboutXIRTransformation')
+irTransformersRegistry.addTransformer('removeMisattributed', 'RemoveMisattributed')
+irTransformersRegistry.addTransformer('removeDisputed', 'RemoveDisputed')
+irTransformersRegistry.addTransformer('removeTranslations', 'RemoveTranslations')
+irTransformersRegistry.addTransformer('removeQuotesAboutX', 'RemoveQuotesAboutX')
 irTransformersRegistry.addTransformer('removeSections', 'RemoveSectionsTransformation')
 
 def main():
@@ -155,10 +155,10 @@ def main():
 		irinstance = WikitextIR(wikitext)
 		# Technically they should work on both on the same instance
 		process = TransformationProcess(irinstance)
-		process.applyTransformer('eliminateMisattributed')
-		process.applyTransformer('eliminateDisputed')
-		process.applyTransformer('eliminateQuotesAboutX')
-		process.applyTransformer('eliminateTranslations')
+		process.applyTransformer('removeMisattributed')
+		process.applyTransformer('removeDisputed')
+		process.applyTransformer('removeQuotesAboutX')
+		process.applyTransformer('removeTranslations')
 		process.applyTransformer('removeSections')
 		process.runProcess()
 		print irinstance.toString()

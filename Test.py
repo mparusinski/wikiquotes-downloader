@@ -50,7 +50,7 @@ class IRTransformationsBaselines(BaselineBuilder):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			disputedRemover = EliminateDisputedIRTransformation(wikitextIR)
+			disputedRemover = RemoveDisputed(wikitextIR)
 			disputedRemover.transform()
 			with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'w') as writehandle:
 				writehandle.write(disputedRemover.getIR().toString())
@@ -60,7 +60,7 @@ class IRTransformationsBaselines(BaselineBuilder):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			misattributedRemover = EliminateMisattributedIRTransformation(wikitextIR)
+			misattributedRemover = RemoveMisattributed(wikitextIR)
 			misattributedRemover.transform()
 			with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'w') as writehandle:
 				writehandle.write(misattributedRemover.getIR().toString())
@@ -70,7 +70,7 @@ class IRTransformationsBaselines(BaselineBuilder):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			quotesAboutXRemover = EliminateQuotesAboutXIRTransformation(wikitextIR)
+			quotesAboutXRemover = RemoveQuotesAboutX(wikitextIR)
 			quotesAboutXRemover.transform()
 			with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'w') as writehandle:
 				writehandle.write(quotesAboutXRemover.getIR().toString())
@@ -83,7 +83,7 @@ class IRTransformationsTest(unittest.TestCase):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			disputedRemover = EliminateDisputedIRTransformation(wikitextIR)
+			disputedRemover = RemoveDisputed(wikitextIR)
 			disputedRemover.transform()
 			with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'r') as baselineFileHandle:
 				baseline = baselineFileHandle.read()
@@ -94,7 +94,7 @@ class IRTransformationsTest(unittest.TestCase):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			misattributedRemover = EliminateMisattributedIRTransformation(wikitextIR)
+			misattributedRemover = RemoveMisattributed(wikitextIR)
 			misattributedRemover.transform()
 			with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'r') as baselineFileHandle:
 				baseline = baselineFileHandle.read()
@@ -105,7 +105,7 @@ class IRTransformationsTest(unittest.TestCase):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			quotesAboutXRemover = EliminateQuotesAboutXIRTransformation(wikitextIR)
+			quotesAboutXRemover = RemoveQuotesAboutX(wikitextIR)
 			quotesAboutXRemover.transform()
 			with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'r') as baselineFileHandle:
 				baseline = baselineFileHandle.read()
@@ -117,10 +117,10 @@ class IRTransformationsTest(unittest.TestCase):
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIRLeft = WikitextIR(wikitext)
 			wikitextIRRight = copy.deepcopy(wikitextIRLeft)
-			misattributedRemoverLeft = EliminateMisattributedIRTransformation(wikitextIRLeft)
-			disputedRemoverLeft = EliminateDisputedIRTransformation(wikitextIRLeft)
-			disputedRemoverRight = EliminateDisputedIRTransformation(wikitextIRRight)
-			misattributedRemoverRight = EliminateMisattributedIRTransformation(wikitextIRRight)
+			misattributedRemoverLeft = RemoveMisattributed(wikitextIRLeft)
+			disputedRemoverLeft = RemoveDisputed(wikitextIRLeft)
+			disputedRemoverRight = RemoveDisputed(wikitextIRRight)
+			misattributedRemoverRight = RemoveMisattributed(wikitextIRRight)
 			misattributedRemoverLeft.transform()
 			disputedRemoverLeft.transform()
 			disputedRemoverRight.transform()
