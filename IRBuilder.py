@@ -63,6 +63,9 @@ class WikitextIRNode:
 				foundList.append(child)
 		return foundList
 
+	def removeChildren(self):
+		self.children = []
+
 	def removeChildrenUsingRegex(self, regex):
 		childrenListCopy = list(self.children) # copy, but not deepcopy
 		for child in childrenListCopy:

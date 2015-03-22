@@ -140,6 +140,18 @@ class RemoveSections(AbstractIRTransformation):
 		rootNode.removeNodesUsingRegex(self.sectionsRegex)
 		return self.wikitextIR
 
+class RemoveSecondDepth(AbstractIRTransformation):
+	""" This assumes sections have been removed """
+
+	def __init__(self, wikitextIR):
+		super(self.__class__, self).__init__(wikitextIR)
+
+	def transform(self):
+		rootNode = self.wikitextIR.getRoot()
+		children = rootNode.getChildren()
+		for child in children:
+			child.removeChildren()
+
 
 irTransformersRegistry = IRTransformersRegistry()
 irTransformersRegistry.addTransformer('removeMisattributed', 'RemoveMisattributed')
@@ -147,6 +159,7 @@ irTransformersRegistry.addTransformer('removeDisputed', 'RemoveDisputed')
 irTransformersRegistry.addTransformer('removeTranslations', 'RemoveTranslations')
 irTransformersRegistry.addTransformer('removeQuotesAboutX', 'RemoveQuotesAboutX')
 irTransformersRegistry.addTransformer('removeSections', 'RemoveSections')
+irTransformersRegistry.addTransformer('removeSecondDepth', 'RemoveSecondDepth')
 
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
@@ -160,6 +173,7 @@ def main():
 		process.applyTransformer('removeQuotesAboutX')
 		process.applyTransformer('removeTranslations')
 		process.applyTransformer('removeSections')
+		process.applyTransformer('removeSecondDepth')
 		process.runProcess()
 		print irinstance.toString()
 
