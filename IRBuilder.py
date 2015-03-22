@@ -72,6 +72,26 @@ class WikitextIRNode:
 	def removeChild(self, child):
 		self.children.remove(child)
 
+	def removeNodesUsingRegex(self, regex):
+		childrenListCopy = list(self.children)
+		for child in childrenListCopy:
+			if regex.match(child.getString()):
+				self.removeChildNode(child)
+
+	def removeChildNode(self, node):
+		# surgically remove node but not its children
+		nodesChildren = node.getChildren()
+		for nodesChild in nodesChildren:
+			nodesChild.parentNode = self
+		nodesIndex = self.children.index(node)
+		newChildren = []
+		for child in self.children:
+			if child == node:
+				newChildren = newChildren + nodesChildren
+			else:
+				newChildren.append(child)
+		self.children = newChildren
+
 
 class WikitextIR:
 	"""Defines an internal representation of a wikitext page"""

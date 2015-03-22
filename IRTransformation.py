@@ -129,11 +129,24 @@ class EliminateTranslationsTransformation(AbstractIRTransformation):
 		nodeTranslated.removeChild(firstChild)
 
 
+class RemoveSectionsTransformation(AbstractIRTransformation):
+
+	def __init__(self, wikitextIR):
+		super(self.__class__, self).__init__(wikitextIR)
+		self.sectionsRegex= re.compile('== [a-zA-Z0-9\s]+ ==')
+
+	def transform(self):
+		rootNode = self.wikitextIR.getRoot()
+		rootNode.removeNodesUsingRegex(self.sectionsRegex)
+		return self.wikitextIR
+
+
 irTransformersRegistry = IRTransformersRegistry()
 irTransformersRegistry.addTransformer('eliminateMisattributed', 'EliminateMisattributedIRTransformation')
 irTransformersRegistry.addTransformer('eliminateDisputed', 'EliminateDisputedIRTransformation')
 irTransformersRegistry.addTransformer('eliminateTranslations', 'EliminateTranslationsTransformation')
 irTransformersRegistry.addTransformer('eliminateQuotesAboutX', 'EliminateQuotesAboutXIRTransformation')
+irTransformersRegistry.addTransformer('removeSections', 'RemoveSectionsTransformation')
 
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
@@ -146,6 +159,7 @@ def main():
 		process.applyTransformer('eliminateDisputed')
 		process.applyTransformer('eliminateQuotesAboutX')
 		process.applyTransformer('eliminateTranslations')
+		process.applyTransformer('removeSections')
 		process.runProcess()
 		print irinstance.toString()
 
