@@ -1,29 +1,34 @@
 from IRBuilder import *
 from IRTransformation import *
+from IRCleaners import *
 
-def makeValidityChecks(wikitextIR):
-	# TODO Implement this function first
-	return True
+class IRNotReady(Exception):
+
+	def __init__(self, detectedIssue):
+		self.detectedIssue = detectedIssue
+
+	def __str__(self):
+		return repr(self.detectedIssue)
+
 
 def createJSONFromIR(wikitextIR):
 	tab = "  "
 	jsonString = "{\n" + tab + "\"quotes\": ["
-	if makeValidityChecks(wikitextIR):
-		rootNode = wikitextIR.getRoot()
-		author = rootNode.getString()
-		children = rootNode.getChildren()
-		stringList = []
-		for child in children:
-			quoteText = child.getString()
-			quoteString = tab + tab + "{\n" + tab + tab + tab + "\"quoteText\": \"" + quoteText + "\","
-			quoteString = quoteString + "\n" + tab + tab + tab + "\"philosopher\": \"" + author + "\"\n" + tab + tab + "}"
-			stringList.append(quoteString)
-		internalString = ",\n".join(stringList)
-		jsonString = jsonString + internalString + "\n" + tab + "]\n}\n"
-		return jsonString
-	else:
-		# TODO Do it here
-		print "Horrible error to throw here"
+	rootNode = wikitextIR.getRoot()
+	if rootNode = None:
+		raise IRNotReady("No root node in IR")
+	author = rootNode.getString()
+	children = rootNode.getChildren()
+	stringList = []
+	for child in children:
+		quoteText = child.getString()
+		quoteString = tab + tab + "{\n" + tab + tab + tab + "\"quoteText\": \"" + quoteText + "\","
+		quoteString = quoteString + "\n" + tab + tab + tab + "\"philosopher\": \"" + author + "\"\n" + tab + tab + "}"
+		stringList.append(quoteString)
+	internalString = ",\n".join(stringList)
+	jsonString = jsonString + internalString + "\n" + tab + "]\n}\n"
+	return jsonString
+
 
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:

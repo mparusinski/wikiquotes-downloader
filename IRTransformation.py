@@ -129,44 +129,6 @@ class RemoveTranslations(AbstractIRTransformation):
 		nodeTranslated.removeChild(firstChild)
 
 
-class RemoveSections(AbstractIRTransformation):
-
-	def __init__(self, wikitextIR):
-		super(self.__class__, self).__init__(wikitextIR)
-		self.sectionsRegex= re.compile('== [a-zA-Z0-9\s]+ ==')
-
-	def transform(self):
-		rootNode = self.wikitextIR.getRoot()
-		rootNode.removeNodesUsingRegex(self.sectionsRegex)
-		return self.wikitextIR
-
-class RemoveSecondDepth(AbstractIRTransformation):
-	""" This assumes sections have been removed """
-
-	def __init__(self, wikitextIR):
-		super(self.__class__, self).__init__(wikitextIR)
-
-	def transform(self):
-		rootNode = self.wikitextIR.getRoot()
-		children = rootNode.getChildren()
-		for child in children:
-			child.removeChildren()
-
-class RemoveLeadingStars(AbstractIRTransformation):
-	""" This assumes sections have been removed """
-
-	def __init__(self, wikitextIR):
-		super(self.__class__, self).__init__(wikitextIR)
-
-	def transform(self):
-		def cleaningFunction(node):
-			string = node.getString()
-			newString = string.lstrip('* ')
-			node.setString(newString)
-		rootNode = self.wikitextIR.getRoot()
-		rootNode.doForAllAncestry(cleaningFunction)
-
-
 irTransformersRegistry = IRTransformersRegistry()
 irTransformersRegistry.addTransformer('removeMisattributed', 'RemoveMisattributed')
 irTransformersRegistry.addTransformer('removeDisputed', 'RemoveDisputed')
@@ -187,9 +149,6 @@ def main():
 		process.applyTransformer('removeDisputed')
 		process.applyTransformer('removeQuotesAboutX')
 		process.applyTransformer('removeTranslations')
-		process.applyTransformer('removeSections')
-		process.applyTransformer('removeSecondDepth')
-		process.applyTransformer('removeLeadingStars')
 		process.runProcess()
 		print irinstance.toString()
 
