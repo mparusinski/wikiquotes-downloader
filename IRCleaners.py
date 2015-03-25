@@ -43,6 +43,8 @@ class RemoveLeadingStars(AbstractIRTransformation):
 
 class IRCleaner(AbstractIRTransformation):
 
+	registerTransformation('cleanIR', 'IRCleaner')
+
 	def __init__(self, wikitextIR):
 		super(self.__class__, self).__init__(wikitextIR)
 		self.removeSections = RemoveSections(wikitextIR)

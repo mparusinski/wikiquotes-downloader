@@ -8,7 +8,6 @@ import copy
 from WikiquotesRetriever import *
 from IRBuilder import *
 from IRTransformation import *
-from IRCleaners import *
 
 REBUILDBASELINES = False
 
@@ -51,30 +50,27 @@ class IRTransformationsBaselines(BaselineBuilder):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			disputedRemover = RemoveDisputed(wikitextIR)
-			disputedRemover.transform()
+			removeDisputed(wikitextIR)
 			with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'w') as writehandle:
-				writehandle.write(disputedRemover.getIR().toString())
+				writehandle.write(wikitextIR.toString())
 
 	def rebuildForTestCorrectMisattributedRemoval(self):
 		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			misattributedRemover = RemoveMisattributed(wikitextIR)
-			misattributedRemover.transform()
+			removeMisattributed(wikitextIR)
 			with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'w') as writehandle:
-				writehandle.write(misattributedRemover.getIR().toString())
+				writehandle.write(wikitextIR.toString())
 
 	def rebuildForTestCorrectQuoteAboutXRemoval(self):
 		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			quotesAboutXRemover = RemoveQuotesAboutX(wikitextIR)
-			quotesAboutXRemover.transform()
+			removeQuotesAboutX(wikitextIR)
 			with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'w') as writehandle:
-				writehandle.write(quotesAboutXRemover.getIR().toString())
+				writehandle.write(wikitextIR.toString())
 
 
 class IRTransformationsTest(unittest.TestCase):
@@ -84,33 +80,30 @@ class IRTransformationsTest(unittest.TestCase):
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			disputedRemover = RemoveDisputed(wikitextIR)
-			disputedRemover.transform()
+			removeDisputed(wikitextIR)
 			with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'r') as baselineFileHandle:
 				baseline = baselineFileHandle.read()
-				self.assertTrue(baseline == disputedRemover.getIR().toString())
+				self.assertTrue(baseline == wikitextIR.toString())
 
 	def testCorrectMisattributedRemoval(self):
 		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			misattributedRemover = RemoveMisattributed(wikitextIR)
-			misattributedRemover.transform()
+			removeMisattributed(wikitextIR)
 			with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'r') as baselineFileHandle:
 				baseline = baselineFileHandle.read()
-				self.assertTrue(baseline == misattributedRemover.getIR().toString())
+				self.assertTrue(baseline == wikitextIR.toString())
 
 	def testCorrectQuoteAboutXRemoval(self):
 		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 			externalJSONContent = filehandle.read()
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIR = WikitextIR(wikitext)
-			quotesAboutXRemover = RemoveQuotesAboutX(wikitextIR)
-			quotesAboutXRemover.transform()
+			removeQuotesAboutX(wikitextIR)
 			with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'r') as baselineFileHandle:
 				baseline = baselineFileHandle.read()
-				self.assertTrue(baseline == quotesAboutXRemover.getIR().toString())
+				self.assertTrue(baseline == wikitextIR.toString())
 
 	def testRemoversCommute(self):
 		with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
@@ -118,14 +111,10 @@ class IRTransformationsTest(unittest.TestCase):
 			wikitext = Wikitext(externalJSONContent)
 			wikitextIRLeft = WikitextIR(wikitext)
 			wikitextIRRight = copy.deepcopy(wikitextIRLeft)
-			misattributedRemoverLeft = RemoveMisattributed(wikitextIRLeft)
-			disputedRemoverLeft = RemoveDisputed(wikitextIRLeft)
-			disputedRemoverRight = RemoveDisputed(wikitextIRRight)
-			misattributedRemoverRight = RemoveMisattributed(wikitextIRRight)
-			misattributedRemoverLeft.transform()
-			disputedRemoverLeft.transform()
-			disputedRemoverRight.transform()
-			misattributedRemoverRight.transform()
+			removeMisattributed(wikitextIRLeft)
+			removeDisputed(wikitextIRLeft)
+			removeDisputed(wikitextIRRight)
+			removeMisattributed(wikitextIRRight)
 			self.assertTrue(wikitextIRLeft.toString() == wikitextIRRight.toString())
 
 

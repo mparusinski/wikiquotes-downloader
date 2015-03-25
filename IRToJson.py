@@ -15,7 +15,7 @@ def createJSONFromIR(wikitextIR):
 	tab = "  "
 	jsonString = "{\n" + tab + "\"quotes\": ["
 	rootNode = wikitextIR.getRoot()
-	if rootNode = None:
+	if rootNode == None:
 		raise IRNotReady("No root node in IR")
 	author = rootNode.getString()
 	children = rootNode.getChildren()
@@ -41,9 +41,7 @@ def main():
 		process.applyTransformer('removeDisputed')
 		process.applyTransformer('removeQuotesAboutX')
 		process.applyTransformer('removeTranslations')
-		process.applyTransformer('removeSections')
-		process.applyTransformer('removeSecondDepth')
-		process.applyTransformer('removeLeadingStars')
+		process.applyTransformer('cleanIR')
 		process.runProcess()
 		jsonString = createJSONFromIR(irinstance)
 		print jsonString
