@@ -1,6 +1,6 @@
 from IRBuilder import *
 from IRTransformation import *
-from IRCleaners import *
+from CleanIR import *
 
 class IRNotReady(Exception):
 
@@ -36,13 +36,9 @@ def main():
 		wikitext = Wikitext(externalJSONContent)
 		irinstance = WikitextIR(wikitext)
 		# Technically they should work on both on the same instance
-		process = TransformationProcess(irinstance)
-		process.applyTransformer('removeMisattributed')
-		process.applyTransformer('removeDisputed')
-		process.applyTransformer('removeQuotesAboutX')
-		process.applyTransformer('removeTranslations')
-		process.applyTransformer('cleanIR')
-		process.runProcess()
+		removeNoiseQuotes(irinstance)
+		removeTranslations(irinstance)
+		cleanIR(irinstance)
 		jsonString = createJSONFromIR(irinstance)
 		print jsonString
 
