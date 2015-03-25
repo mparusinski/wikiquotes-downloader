@@ -49,6 +49,30 @@ def removeNoiseQuotes(wikitextIR):
 	removeDisputed(wikitextIR)
 	removeQuotesAboutX(wikitextIR)
 
+def removeSections(wikitextIR):
+	sectionsRegex= re.compile('== [a-zA-Z0-9\s]+ ==')
+	rootNode = wikitextIR.getRoot()
+	rootNode.removeNodesUsingRegex(sectionsRegex)
+
+def removeSecondDepth(wikitextIR):
+	rootNode = wikitextIR.getRoot()
+	children = rootNode.getChildren()
+	for child in children:
+		child.removeChildren()
+
+def removeLeadingStars(wikitextIR):
+	def cleaningFunction(node):
+		string = node.getString()
+		newString = string.lstrip('* ')
+		node.setString(newString)
+	rootNode = wikitextIR.getRoot()
+	rootNode.doForAllAncestry(cleaningFunction)
+
+def cleanIR(wikitextIR):
+	removeSections(wikitextIR)
+	removeSecondDepth(wikitextIR)
+	removeLeadingStars(wikitextIR)
+
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
 		externalJSONContent = filehandle.read()
@@ -56,6 +80,7 @@ def main():
 		irinstance = WikitextIR(wikitext)
 		removeNoiseQuotes(irinstance)
 		removeTranslations(irinstance)
+		cleanIR(irinstance)
 		print irinstance.toString()
 
 if __name__ == '__main__':
