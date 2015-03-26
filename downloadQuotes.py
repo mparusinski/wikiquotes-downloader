@@ -10,7 +10,7 @@ if len(sys.argv) > 1:
 	philosophersName = sys.argv[1]
 	wikiRetriever = WikiquotesRetriever()
 	wikiRetriever.setupNetworking()
-	jsonContent = wikiRetriever.downloadQuote(philosophersName)
+	jsonContent = wikiRetriever.downloadQuote(philosophersName )
 	wikiRetriever.closeNetworking()
 	wikitext = Wikitext(jsonContent)
 	irinstance = WikitextIR(wikitext)
