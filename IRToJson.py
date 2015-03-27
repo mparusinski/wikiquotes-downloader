@@ -1,3 +1,4 @@
+# coding=UTF-8
 from IRBuilder import *
 from IRTransformation import *
 from CleanIR import *
