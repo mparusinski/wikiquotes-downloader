@@ -8,6 +8,7 @@ import copy
 from WikiquotesRetriever import *
 from IRBuilder import *
 from IRTransformation import *
+from DetectLanguage import *
 
 REBUILDBASELINES = False
 
@@ -26,6 +27,12 @@ def saferSystemCall(call):
 		else:
 			print "Please type YES or NO!"
 
+class TestDetectLanguage(unittest.TestCase):
+
+	def testFindEnglishSentence(self):
+		englishScore = matchLanguage("Once upon a time there was a sausage called Baldrick", commonWordsEnglish)
+		frenchScore = matchLanguage("Il etait une fois une saucisse nomme Baldrick", commonWordsEnglish)
+		self.assertTrue(englishScore > frenchScore)
 
 class BaselineBuilder(object):
 
