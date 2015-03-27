@@ -1,3 +1,4 @@
+# coding=UTF-8
 import unittest
 import os
 import sys
@@ -33,6 +34,14 @@ class TestDetectLanguage(unittest.TestCase):
 		englishScore = matchLanguage("Once upon a time there was a sausage called Baldrick", commonWordsEnglish)
 		frenchScore = matchLanguage("Il etait une fois une saucisse nomme Baldrick", commonWordsEnglish)
 		self.assertTrue(englishScore > frenchScore)
+
+	def testDetectEnglish(self):
+		englishSentence = "Once upon a time there was a sausage called Baldrick"
+		self.assertTrue(detectLanguage(englishSentence) == "English")
+
+	def testDetectGerman(self):
+		germanQuote = "Man verdirbt einen Jüngling am sichersten, wenn man ihn anleitet, den Gleichdenkenden höher zu achten, als den Andersdenkenden."
+		self.assertTrue(detectLanguage(germanQuote) == "German")
 
 class BaselineBuilder(object):
 
