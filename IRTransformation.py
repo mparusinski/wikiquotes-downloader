@@ -1,6 +1,7 @@
+# coding=UTF-8
 import re
 from IRBuilder import *
-
+from DetectLanguage import *
 
 def removeMisattributed(wikitextIR):
 	misattributedRegex = re.compile('== Misattributed ==')
@@ -17,21 +18,21 @@ def removeQuotesAboutX(wikitextIR):
 	rootNode = wikitextIR.getRoot()
 	rootNode.removeChildrenUsingRegex(aboutXRegex)
 
+def fixTranslation(translatedNode):
+	children = translatedNode.getChildren()
+	firstChild = children[0]
+	newString = firstChild.getString()
+	newString = newString[1:] # drop the first '*'
+	translatedNode.setString(newString)
+	translatedNode.removeChild(firstChild)
+
 def removeTranslations(wikitextIR):
+	print "Remove translations called"
+	def detectTranslation(node):
+		isTranslated = not detectLanguage(node.getString()) == "English"
+		return isTranslated
 	rootNode = wikitextIR.getRoot()
 	quotesRegex = re.compile('== Quotes ==')
-	translationRegex = re.compile('\s\'\'[a-zA-Z\.]')
-	def matchTranslationFunction(node):
-		nodeString = node.getString()
-		nodeChildren = node.getChildren()
-		return nodeString.startswith("* ") and len(nodeChildren) >= 2 and translationRegex.search(nodeString)
-	def fixNode(nodeTranslated):
-		children = nodeTranslated.getChildren()
-		firstChild = children[0]
-		newString = firstChild.getString()
-		newString = newString[1:] # drop the first '*'
-		nodeTranslated.setString(newString)
-		nodeTranslated.removeChild(firstChild)
 	quotesSubnodes = rootNode.findChildrenUsingRegex(quotesRegex)
 	numSubnodes = len(quotesSubnodes)
 	if numSubnodes > 1:
@@ -40,9 +41,10 @@ def removeTranslations(wikitextIR):
 		raise InvalidWikitext("No \"QUOTES\" section found. Please contact developer")
 	else:
 		quotesNode = quotesSubnodes[0]
-		translatedNodes = quotesNode.findChildrenUsingFunction(matchTranslationFunction)
+		quotesNode.getString()
+		translatedNodes = quotesNode.findChildrenUsingFunction(detectTranslation)
 		for nodeTranslated in translatedNodes:
-			fixNode(nodeTranslated)
+			fixTranslation(nodeTranslated)
 
 def removeNoiseQuotes(wikitextIR):
 	removeMisattributed(wikitextIR)
