@@ -31,17 +31,20 @@ def saferSystemCall(call):
 class TestDetectLanguage(unittest.TestCase):
 
 	def testFindEnglishSentence(self):
-		englishScore = matchLanguage("Once upon a time there was a sausage called Baldrick", commonWordsEnglish)
-		frenchScore = matchLanguage("Il etait une fois une saucisse nomme Baldrick", commonWordsEnglish)
+		languageDetector = LanguageDetector()
+		englishScore = languageDetector.scoreLanguage("English", "Once upon a time there was a sausage called Baldrick")
+		frenchScore = languageDetector.scoreLanguage("English", "Il etait une fois une saucisse nomme Baldrick")
 		self.assertTrue(englishScore > frenchScore)
 
 	def testDetectEnglish(self):
-		englishSentence = "Once upon a time there was a sausage called Baldrick"
-		self.assertTrue(detectLanguage(englishSentence) == "English")
+		languageDetector = LanguageDetector()
+		language = languageDetector.detectLanguage("Once upon a time there was a sausage called Baldrick")
+		self.assertTrue(language == "English")
 
 	def testDetectGerman(self):
-		germanQuote = "Man verdirbt einen Jüngling am sichersten, wenn man ihn anleitet, den Gleichdenkenden höher zu achten, als den Andersdenkenden."
-		self.assertTrue(detectLanguage(germanQuote) == "German")
+		languageDetector = LanguageDetector()
+		language = languageDetector.detectLanguage("Man verdirbt einen Jüngling am sichersten, wenn man ihn anleitet, den Gleichdenkenden höher zu achten, als den Andersdenkenden.")
+		self.assertTrue(language == "German")
 
 class BaselineBuilder(object):
 

@@ -27,10 +27,9 @@ def fixTranslation(translatedNode):
 	translatedNode.removeChild(firstChild)
 
 def removeTranslations(wikitextIR):
-	print "Remove translations called"
+	languageDetector = LanguageDetector()
 	def detectTranslation(node):
-		isTranslated = not detectLanguage(node.getString()) == "English"
-		return isTranslated
+		return not languageDetector.detectLanguage(node.getString()) == "English"
 	rootNode = wikitextIR.getRoot()
 	quotesRegex = re.compile('== Quotes ==')
 	quotesSubnodes = rootNode.findChildrenUsingRegex(quotesRegex)

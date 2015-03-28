@@ -30,25 +30,49 @@ commonWordsGerman = ['das', 'du', 'die', 'ich', 'nicht', 'die', 'es', 'und', 'Si
 def wordsInText(text):
 	return len(text.split(" "))
 
-def matchLanguage(text, languageCommonWords):
-	countTotal = 0
-	for word in languageCommonWords:
-		wordRegex = r"(^" + word + ")|(\s" + word + "\s)|(" + word + "$)"
-		matches = len(re.findall(wordRegex, text))
-		countTotal = countTotal + len(re.findall(wordRegex, text))
-	return (countTotal + 0.0) / wordsInText(text)
+class LanguageDetector:
 
-def detectLanguage(text):
-	englishScore = matchLanguage(text, commonWordsEnglish)
-	germanScore = matchLanguage(text, commonWordsGerman)
-	if englishScore > germanScore:
-		return "English"
-	else:
-		return "German"
+	def __init__(self):
+		self.dictionaries = dict()
+		self.__loadDictionaries__()
+		self.__languageRegexes__ = dict()
+		self.__compileRegexes__()
+
+	def __loadDictionaries__(self):
+		self.dictionaries['English'] = commonWordsEnglish
+		self.dictionaries['German'] = commonWordsGerman
+
+	def __compileRegexes__(self):
+		for key in self.dictionaries.keys():
+			currentDictionary = self.dictionaries[key]
+			regexesCollection = []
+			for word in currentDictionary:
+				associatedRegex = self.__buildRegexFromWord__(word)
+				regexesCollection.append(associatedRegex)
+			self.__languageRegexes__[key] = regexesCollection
+
+	def __buildRegexFromWord__(self, word):
+		regexString = r"(^" + word + ")|(\s" + word + "\s)|(" + word + "$)"
+		return re.compile(regexString)
+
+	def detectLanguage(self, string):
+		languageScoreArray = dict()
+		for key in self.dictionaries.keys():
+			languageScore = self.scoreLanguage(key, string)
+			languageScoreArray[key] = languageScore
+		return max(languageScoreArray, key=languageScoreArray.get)
+
+	def scoreLanguage(self, language, string):
+		languageRegexes = self.__languageRegexes__[language]
+		countTotal = 0
+		for regex in languageRegexes:
+			matches = len(regex.findall(string))
+			countTotal = countTotal + matches
+		return (countTotal + 0.0) / wordsInText(string)
+
 
 def main():
-	print matchLanguage("Once upon a time there was a sausage called Baldrick", commonWordsGerman)
-	print matchLanguage("Il etait une fois une saucisse nomme Baldrick", commonWordsGerman)
+	pass
 
 if __name__ == '__main__':
 	main()
