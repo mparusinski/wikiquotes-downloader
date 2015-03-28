@@ -26,4 +26,4 @@ else:
 	removeTranslations(irinstance)
 	cleanIR(irinstance)
 	jsonString = createJSONFromIR(irinstance)
-	print jsonString
+	print jsonString.encode('UTF-8')
