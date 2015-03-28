@@ -85,11 +85,37 @@ def removeQuoteDelimiters(wikitextIR):
 	rootNode = wikitextIR.getRoot()
 	rootNode.doForAllAncestry(cleaningFunction)
 
+def fixInternalQuotes(wikitextIR):
+	doubleQuoteRegex = re.compile(r'(\")')
+	def fixQuoteHelper(node):
+		string = node.getString()
+		newString = doubleQuoteRegex.sub('\\\"', string)
+		node.setString(newString)
+	rootNode = wikitextIR.getRoot()
+	rootNode.doForAllAncestry(fixQuoteHelper)
+
+def markupCleaner(wikitextIR):
+	"""
+	Markup is completely removed and is unsupported for now
+	"""
+	italicRegex = re.compile(r'\'\'')
+	boldRegex = re.compile(r'\'\'\'')
+	# TODO: Add support for escape wiki markup
+	def cleanMarkupInternal(node):
+		string = node.getString()
+		noBoldString = boldRegex.sub('', string)
+		noItalicNoBoldString = italicRegex.sub('', noBoldString)
+		node.setString(noItalicNoBoldString)
+	rootNode = wikitextIR.getRoot()
+	rootNode.doForAllAncestry(cleanMarkupInternal)
+
 def cleanIR(wikitextIR):
 	removeSections(wikitextIR)
 	removeSecondDepth(wikitextIR)
 	removeLeadingStars(wikitextIR)
 	removeQuoteDelimiters(wikitextIR)
+	fixInternalQuotes(wikitextIR)
+	markupCleaner(wikitextIR)
 
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
