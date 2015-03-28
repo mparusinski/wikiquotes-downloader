@@ -15,51 +15,43 @@ class InvalidTitleException(Exception):
 class WikiquotesRetriever(object):
     """This class retrieves pages from Wikiquotes"""
     def __init__(self):
-        self.titlePlaceholder   = "%%TITLE%%"
-        self.wikiquoteurlformat = "http://en.wikiquote.org/w/api.php?format=json&action=query&titles=" \
-            + self.titlePlaceholder + "&prop=revisions&rvprop=content"
+        self.title_place_holder   = "%%TITLE%%"
+        self.wikiquote_url_format = "http://en.wikiquote.org/w/api.php?format=json&action=query&titles=" \
+            + self.title_place_holder + "&prop=revisions&rvprop=content"
         self.curler = None
 
-    def setupNetworking(self):
+    def setup_networking(self):
         self.curler = pycurl.Curl()
 
-    def closeNetworking(self):
+    def close_networking(self):
         self.curler.close()
 
-    def __preprocessTitle(self, title):
+    def __preprocess_title(self, title):
         """ For instance "Friedrich Nietzsche" would become "Friedrich_Nietzsche" """
         return title.replace(' ','%20')
 
     def __getURL(self, title):
-        urlReadyTitle = self.__preprocessTitle(title)
-        urlForTitle = self.wikiquoteurlformat.replace(self.titlePlaceholder, urlReadyTitle)
-        return urlForTitle
+        url_ready_title = self.__preprocess_title(title)
+        url_for_title = self.wikiquote_url_format.replace(self.title_place_holder, url_ready_title)
+        return url_for_title
 
-    def downloadQuote(self, title):
+    def download_quote(self, title):
         buffer = StringIO()
         self.curler.setopt(self.curler.URL, self.__getURL(title))
         self.curler.setopt(self.curler.WRITEDATA, buffer)
         self.curler.perform()
-        jsonText = buffer.getvalue()
-        peekAhead = jsonText[0:PEEK_AHEAD_FOR_ERROR_LENGTH]
-        peekText = "\"pages\":{\"-1\""
-        if peekText in peekAhead:
+        json_text = buffer.getvalue()
+        peek_ahead = json_text[0:PEEK_AHEAD_FOR_ERROR_LENGTH]
+        peek_text = "\"pages\":{\"-1\""
+        if peek_text in peek_ahead:
             raise InvalidTitleException(title)
-        return jsonText
+        return json_text
 
 def main():
-    wikiRetriever = WikiquotesRetriever()
-    wikiRetriever.setupNetworking()
-    print wikiRetriever.downloadQuote("Friedrich Nietzsche")
-    wikiRetriever.closeNetworking()
-
-# def main():
-#   curler = pycurl.Curl()
-#   body = downloadQuote(curler, "Friedrich Nietzsche")
-#   jsonObject = json.loads(body)
-#   for key in jsonObject.iterkeys():
-#       print key
-#   curler.close()
+    wiki_retriever = WikiquotesRetriever()
+    wiki_retriever.setup_networking()
+    print wiki_retriever.download_quote("Friedrich Nietzsche")
+    wiki_retriever.close_networking()
 
 if __name__ == '__main__':
     main()

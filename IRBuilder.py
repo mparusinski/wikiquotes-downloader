@@ -3,140 +3,139 @@ import json
 import re
 from StringIO import StringIO
 
-def inspectJSONObject(json):
+def inspect_json_object(json):
     for key in json.iterkeys():
-        stringObjectValue = unicode(json[key])
-        print key + ": " + stringObjectValue[0:100]
+        string_object_value = unicode(json[key])
+        print key + ": " + string_object_value[0:100]
 
-def inspectJSONList(json):
+def inspect_json_list(json):
     for elem in json:
-        stringElem = unicode(elem)
-        print stringElem[0:100]
-
+        string_elem = unicode(elem)
+        print string_elem[0:100]
 
 class WikitextIRNode(object):
     """Defines a node in the internal representation of a wikitext page"""
-    def __init__(self, currentString, parentNode = None):
-        self.currentString = currentString
+    def __init__(self, current_string, parent_node = None):
+        self.current_string = current_string
         self.children = []
-        self.parentNode = parentNode
+        self.parent_node = parent_node
 
-    def addChild(self, wikitextIRNode):
-        self.children.append(wikitextIRNode)
+    def add_child(self, wikitext_ir_node):
+        self.children.append(wikitext_ir_node)
 
-    def setString(self, newString):
-        self.currentString = newString
+    def set_string(self, new_string):
+        self.current_string = new_string
 
-    def getParent(self):
-        return self.parentNode
+    def get_parent(self):
+        return self.parent_node
 
-    def getChildren(self):
+    def get_children(self):
         return self.children
 
-    def getString(self):
-        return self.currentString
+    def get_string(self):
+        return self.current_string
 
-    def toStringList(self, tabulation):
+    def to_string_list(self, tabulation):
         """Build a list of strings"""
-        firstItem = tabulation + self.currentString
-        accum = [firstItem]
+        first_item = tabulation + self.current_string
+        accum = [first_item]
         for child in self.children:
-            childStringList = child.toStringList(tabulation + "  ")
-            accum = accum + childStringList
+            child_string_list = child.to_string_list(tabulation + "  ")
+            accum = accum + child_string_list
         return accum
 
-    def toString(self):
-        stringList = self.toStringList("")
-        return "\n".join(stringList)
+    def to_string(self):
+        string_list = self.to_string_list("")
+        return "\n".join(string_list)
 
-    def doForAllAncestry(self, function):
+    def do_for_all_ancestry(self, function):
         for child in self.children:
             function(child)
-            child.doForAllAncestry(function)
+            child.do_for_all_ancestry(function)
 
-    def findChildrenUsingRegex(self, regex):
+    def find_children_using_regex(self, regex):
         # assuming regex is precompiled
-        foundList = []
+        found_list = []
         for child in self.children:
-            if regex.match(child.getString()):
-                foundList.append(child)
-        return foundList
+            if regex.match(child.get_string()):
+                found_list.append(child)
+        return found_list
 
-    def findChildrenUsingFunction(self, function):
-        foundList = []
+    def find_children_using_function(self, function):
+        found_list = []
         for child in self.children:
             if function(child):
-                foundList.append(child)
-        return foundList
+                found_list.append(child)
+        return found_list
 
-    def removeChildren(self):
+    def remove_children(self):
         self.children = []
 
-    def removeChildrenUsingRegex(self, regex):
-        childrenListCopy = list(self.children) # copy, but not deepcopy
-        for child in childrenListCopy:
-            if regex.match(child.getString()):
+    def remove_children_using_regex(self, regex):
+        children_list_copy = list(self.children) # copy, but not deepcopy
+        for child in children_list_copy:
+            if regex.match(child.get_string()):
                 self.children.remove(child)
 
-    def removeChild(self, child):
+    def remove_child(self, child):
         self.children.remove(child)
 
-    def removeNodesUsingRegex(self, regex):
-        childrenListCopy = list(self.children)
-        for child in childrenListCopy:
-            if regex.match(child.getString()):
-                self.removeChildNode(child)
+    def remove_nodes_using_regex(self, regex):
+        children_list_copy = list(self.children)
+        for child in children_list_copy:
+            if regex.match(child.get_string()):
+                self.remove_child_node(child)
 
-    def removeChildNode(self, node):
+    def remove_child_node(self, node):
         # surgically remove node but not its children
-        nodesChildren = node.getChildren()
-        for nodesChild in nodesChildren:
-            nodesChild.parentNode = self
-        nodesIndex = self.children.index(node)
-        newChildren = []
+        nodes_children = node.get_children()
+        for node_child in nodes_children:
+            node_child.parentNode = self
+        nodes_index = self.children.index(node)
+        new_children = []
         for child in self.children:
             if child == node:
-                newChildren = newChildren + nodesChildren
+                new_children = new_children + nodes_children
             else:
-                newChildren.append(child)
-        self.children = newChildren
+                new_children.append(child)
+        self.children = new_children
 
 
 class WikitextIR:
     """Defines an internal representation of a wikitext page"""
     def __init__(self, wikitext):
-        self.rootNode = WikitextIRNode(wikitext.getWikitextTitle())
-        self.__parseText(wikitext.getWikitextString())
+        self.root_node = WikitextIRNode(wikitext.get_wikitext_title())
+        self.__parse_text(wikitext.get_wikitext_string())
 
-    def __parseText(self, textToParse):
-        currentNode = self.rootNode
-        currentDepth = 0
-        for line in textToParse.splitlines():
-            if self.__validLine(line):
-                depth = self.__findDepth(line)
-                if depth > currentDepth: # Going deeper
-                    if not (depth - currentDepth == 1):
+    def __parse_text(self, text_to_parse):
+        current_node = self.root_node
+        current_depth = 0
+        for line in text_to_parse.splitlines():
+            if self.__valid_line(line):
+                depth = self.__find_depth(line)
+                if depth > current_depth: # Going deeper
+                    if not (depth - current_depth == 1):
                         # TODO Raise appropriate error
                         print "Parse error! Line " + line + " is not invalid"
                     else:
-                        newNode = WikitextIRNode(line, parentNode=currentNode)
-                        currentNode.addChild(newNode)
-                        currentNode = newNode
-                        currentDepth = depth
+                        new_node = WikitextIRNode(line, parent_node=current_node)
+                        current_node.add_child(new_node)
+                        current_node = new_node
+                        current_depth = depth
                 else:
-                    dropAmount = currentDepth - depth
-                    for i in xrange(dropAmount):
-                        currentNode = currentNode.getParent()
-                    parentNode = currentNode.getParent()
-                    newNode = WikitextIRNode(line, parentNode=parentNode)
-                    parentNode.addChild(newNode)
-                    currentNode = newNode
-                    currentDepth = depth
+                    drop_amount = current_depth - depth
+                    for i in xrange(drop_amount):
+                        current_node = current_node.get_parent()
+                    parent_node = current_node.get_parent()
+                    new_node = WikitextIRNode(line, parent_node=parent_node)
+                    parent_node.add_child(new_node)
+                    current_node = new_node
+                    current_depth = depth
 
-    def __validLine(self, line):
+    def __valid_line(self, line):
         return line.startswith("== ") or (len(line) > 0 and line[0] == '*')
 
-    def __findDepth(self, line):
+    def __find_depth(self, line):
         if line.startswith("== "):
             return 1
         else:
@@ -145,13 +144,13 @@ class WikitextIR:
                     return idx + 1
         return -1
 
-    def getRoot(self):
-        return self.rootNode
+    def get_root(self):
+        return self.root_node
 
-    def toString(self):
-        stringList = self.rootNode.toStringList("")
-        stringNoneFormatted = "\n".join(stringList)
-        return stringNoneFormatted.encode('UTF-8')
+    def to_string(self):
+        stringList = self.root_node.to_string_list("")
+        string_none_formatted = "\n".join(stringList)
+        return string_none_formatted.encode('UTF-8')
 
 
 class InvalidWikitext(Exception):
@@ -164,49 +163,49 @@ class InvalidWikitext(Exception):
 
 class Wikitext(object):
     """Wikitext that is embedded in a jsonString"""
-    def __init__(self, jsonString):
+    def __init__(self, json_string):
         self.nodes = []
-        self.keyString = "query.pages"
-        self.pageTitle = None
+        self.key_string = "query.pages"
+        self.page_title = None
         self.wikitext = None
-        self.__extractWikitext(jsonString)
+        self.__extract_wikitext(json_string)
 
-    def __processPage(self, page):
-        pageKeys = page.keys()
-        pageID = pageKeys[0]
-        pageInternal = page[pageID]
-        self.pageTitle = pageInternal['title']
-        pageContent = pageInternal['revisions']
-        pageElement = pageContent[0]
-        self.wikitext = pageElement["*"]
+    def __process_page(self, page):
+        page_keys = page.keys()
+        page_id = page_keys[0]
+        page_internal = page[page_id]
+        self.page_title = page_internal['title']
+        page_content = page_internal['revisions']
+        page_element = page_content[0]
+        self.wikitext = page_element["*"]
 
-    def __extractWikitext(self, jsonString):
+    def __extract_wikitext(self, json_string):
         try:
-            jsonContent = json.loads(jsonString)
-            page = self.__getAddressJSON(jsonContent, self.keyString)
-            self.__processPage(page)
+            json_content = json.loads(json_string)
+            page = self.__get_address_json(json_content, self.key_string)
+            self.__process_page(page)
         except ValueError:
             raise InvalidWikitext("Not a valid JSON file")
 
-    def __getAddressJSON(self, json, addressString):
-        tokens = addressString.split('.')
-        jsonContent = json
+    def __get_address_json(self, json, address_string):
+        tokens = address_string.split('.')
+        json_content = json
         for token in tokens:
-            jsonContent = jsonContent[token]
-        return jsonContent
+            json_content = json_content[token]
+        return json_content
 
-    def getWikitextString(self):
+    def get_wikitext_string(self):
         return self.wikitext
 
-    def getWikitextTitle(self):
-        return self.pageTitle
+    def get_wikitext_title(self):
+        return self.page_title
 
 def main():
     with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
-        externalJSONContent = filehandle.read()
-        wikitext = Wikitext(externalJSONContent)
+        external_json_content = filehandle.read()
+        wikitext = Wikitext(external_json_content)
         irinstance = WikitextIR(wikitext)
-        print irinstance.toString()
+        print irinstance.to_string()
 
 if __name__ == "__main__":
     main()
