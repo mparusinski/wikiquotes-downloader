@@ -14,7 +14,7 @@ def inspectJSONList(json):
         print stringElem[0:100]
 
 
-class WikitextIRNode:
+class WikitextIRNode(object):
     """Defines a node in the internal representation of a wikitext page"""
     def __init__(self, currentString, parentNode = None):
         self.currentString = currentString
@@ -162,7 +162,7 @@ class InvalidWikitext(Exception):
     def __str__(self):
         return repr(self.description)
 
-class Wikitext:
+class Wikitext(object):
     """Wikitext that is embedded in a jsonString"""
     def __init__(self, jsonString):
         self.nodes = []

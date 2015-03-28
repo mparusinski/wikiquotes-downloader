@@ -12,7 +12,7 @@ class InvalidTitleException(Exception):
         return repr(self.title)
 
 
-class WikiquotesRetriever():
+class WikiquotesRetriever(object):
     """This class retrieves pages from Wikiquotes"""
     def __init__(self):
         self.titlePlaceholder   = "%%TITLE%%"

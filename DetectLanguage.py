@@ -30,7 +30,7 @@ commonWordsGerman = ['das', 'du', 'die', 'ich', 'nicht', 'die', 'es', 'und', 'Si
 def wordsInText(text):
     return len(text.split(" "))
 
-class LanguageDetector:
+class LanguageDetector(object):
 
     def __init__(self):
         self.dictionaries = dict()
