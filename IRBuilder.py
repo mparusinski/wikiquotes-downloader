@@ -196,6 +196,11 @@ class Wikitext(object):
         return self.page_title
 
 
+def create_wikitext_ir_from_json(json_content):
+    wikitext = Wikitext(json_content)
+    irinstance = WikitextIR(wikitext)
+    return irinstance
+
 if __name__ == "__main__":
     pass
         

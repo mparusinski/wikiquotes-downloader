@@ -2,12 +2,12 @@
 import sys
 import argparse
 
-from WikiquotesRetriever import *
-from IRBuilder import *
-from CleanIR import *
-from IRToJson import *
+from WikiquotesRetriever import WikiquotesRetriever
+from IRBuilder import create_wikitext_ir_from_json
+from CleanIR import remove_noise, remove_translations, clean_ir
+from IRToJson import create_json_from_ir
 
-DESCRIPTION="Download all quotes from a certain philosopher"
+DESCRIPTION = "Download all quotes from a certain philosopher"
 
 def main():
     parser = argparse.ArgumentParser(description=DESCRIPTION)
@@ -22,8 +22,7 @@ def main():
     wiki_retriever.setup_networking()
     json_content = wiki_retriever.download_quote(philosophers_name)
     wiki_retriever.close_networking()
-    wikitext = Wikitext(json_content)
-    irinstance = WikitextIR(wikitext)
+    irinstance = create_wikitext_ir_from_json(json_content)
     if args.raw:
         print irinstance.to_string()
     else:
