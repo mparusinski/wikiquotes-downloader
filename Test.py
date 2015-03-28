@@ -11,7 +11,7 @@ from IRBuilder import *
 from CleanIR import *
 from DetectLanguage import *
 
-REBUILD_BASELINES = False
+REBUILD_BASELINES = True
 
 def safer_system_call(call):
     print "---------------------------------------------------------------------"
@@ -32,138 +32,145 @@ class TestDetectLanguage(unittest.TestCase):
 
     def test_find_english_sentence(self):
         language_detector = LanguageDetector()
-        english_score = language_detector.score_language("English", "Once upon a time there was a sausage called Baldrick")
-        french_score = language_detector.score_language("English", "Il etait une fois une saucisse nomme Baldrick")
+        english_score = language_detector.score_language("English", \
+            "Once upon a time there was a sausage called Baldrick")
+        french_score = language_detector.score_language("English", \
+            "Il etait une fois une saucisse nomme Baldrick")
         self.assertTrue(english_score > french_score)
 
     def test_detect_english(self):
         language_detector = LanguageDetector()
-        language = language_detector.detect_language("Once upon a time there was a sausage called Baldrick")
+        language = language_detector.detect_language(\
+            "Once upon a time there was a sausage called Baldrick")
         self.assertTrue(language == "English")
 
     def test_detect_german(self):
         language_detector = LanguageDetector()
-        language = language_detector.detect_language("Man verdirbt einen Jüngling am sichersten, wenn man ihn anleitet, den Gleichdenkenden höher zu achten, als den Andersdenkenden.")
+        language = language_detector.detect_language(\
+            "Man verdirbt einen Jüngling am sichersten, wenn man ihn anleitet,"\
+            " den Gleichdenkenden höher zu achten, als den Andersdenkenden.")
         self.assertTrue(language == "German")
+
 
 class BaselineBuilder(object):
 
-    def __inheritors(self):
-        return BaselineBuilder.__subclasses__()
+    def __init__(self):
+        pass
 
-    def run_baselines_builders(self):
-        regex = re.compile('^rebuild')
-        subclasses_list = self.__inheritors()
-        for subclass in subclasses_list:
-            subclass_name = subclass.__name__
-            obj = globals()[subclass_name]()
-            methods = [method for method in dir(subclass) if callable(getattr(obj, method))]
-            for method in methods:
-                if regex.match(method):
-                    eval(subclass_name + '().' + method + '()')
+
+def run_baselines_builders():
+    regex = re.compile('^rebuild')
+    subclasses_list = BaselineBuilder.__subclasses__()
+    for subclass in subclasses_list:
+        subclass_name = subclass.__name__
+        obj = globals()[subclass_name]()
+        methods = [method for method in dir(subclass) if callable(getattr(obj, method))]
+        for method in methods:
+            if regex.match(method):
+                eval(subclass_name + '().' + method + '()')
+
 
 class IRTransformationsBaselines(BaselineBuilder):
 
-    def rebuild_for_test_correct_disputed_removal(self):
+    def rebuild_test_correct_disputed_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_disputed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
             remove_disputed(wikitext_ir)
-            with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'w') as writehandle:
+            with open(baseline_file, 'w') as writehandle:
                 writehandle.write(wikitext_ir.to_string())
 
-    def rebuild_for_test_correct_misattributed_removal(self):
+    def rebuild_test_correct_misattributed_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
             remove_misattributed(wikitext_ir)
-            with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'w') as writehandle:
+            with open(baseline_file, 'w') as writehandle:
                 writehandle.write(wikitext_ir.to_string())
 
-    def rebuild_for_test_correct_quote_about_x_removal(self):
+    def rebuild_test_correct_quote_about_x_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
             remove_quotes_about_x(wikitext_ir)
-            with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'w') as writehandle:
+            with open(baseline_file, 'w') as writehandle:
                 writehandle.write(wikitext_ir.to_string())
 
 
 class IRTransformationsTest(unittest.TestCase):
 
     def test_correct_disputed_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_disputed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
             remove_disputed(wikitext_ir)
-            with open('baselines/Friedrich_Nietzsche_no_disputed.wikitextIR', 'r') as baseline_file_handle:
+            with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
                 self.assertTrue(baseline == wikitext_ir.to_string())
 
     def test_correct_misattributed_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
             remove_misattributed(wikitext_ir)
-            with open('baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR', 'r') as baseline_file_handle:
+            with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
                 self.assertTrue(baseline == wikitext_ir.to_string())
 
     def test_correct_quote_about_x_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
             remove_quotes_about_x(wikitext_ir)
-            with open('baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR', 'r') as baseline_file_handle:
+            with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
                 self.assertTrue(baseline == wikitext_ir.to_string())
 
     def test_removers_commute(self):
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir_left = WikitextIR(wikitext)
+            wikitext_ir_left = create_wikitext_ir_from_json(external_json_content)
             wikitext_ir_right = copy.deepcopy(wikitext_ir_left)
             remove_misattributed(wikitext_ir_left)
             remove_disputed(wikitext_ir_left)
             remove_disputed(wikitext_ir_right)
             remove_misattributed(wikitext_ir_right)
-            self.assertTrue(wikitext_ir_left.to_string() == wikitext_ir_right.to_string())
+            self.assertTrue(\
+                wikitext_ir_left.to_string() == wikitext_ir_right.to_string())
 
 
 class WikitextIRBaselines(BaselineBuilder):
 
-    def rebuild_for_test_correct_wikitext_ir(self):
+    def rebuild_test_correct_wikitext_ir(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
-            with open('baselines/Friedrich_Nietzsche.wikitextIR', 'w') as writehandle:
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            with open(baseline_file, 'w') as writehandle:
                 writehandle.write(wikitext_ir.to_string())
 
 
 class WikitextIRTest(unittest.TestCase):
 
     def test_correct_wikitext_ir(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
-            wikitext_ir = WikitextIR(wikitext)
-            with open('baselines/Friedrich_Nietzsche.wikitextIR', 'r') as baseline_file_handle:
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            with open(baseline_file, 'r') as baseline_file_handle:
                 baseline_ir = baseline_file_handle.read()
                 self.assertTrue(baseline_ir == wikitext_ir.to_string())
 
 
 class WikitextExtractorBaselines(BaselineBuilder):
-    """Class to rebuild baselines"""
 
-    def rebuild_for_test_correct_wikitext_built(self):
+    def rebuild_test_correct_wikitext_built(self):
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
             wikitext = Wikitext(external_json_content)
@@ -174,10 +181,11 @@ class WikitextExtractorBaselines(BaselineBuilder):
 class WikitextExtractorTest(unittest.TestCase):
 
     def test_correct_wikitext_build(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche.wikitext'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
             wikitext = Wikitext(external_json_content)
-            with open('baselines/Friedrich_Nietzsche.wikitext', 'r') as readhandle:
+            with open(baseline_file, 'r') as readhandle:
                 wikitextbaseline = readhandle.read()
                 self.assertTrue(wikitext.get_wikitext_string().encode('UTF-8') == wikitextbaseline)
 
@@ -196,7 +204,7 @@ class WikitextExtractorTest(unittest.TestCase):
 class WikiquotesRetrieverBaselines(BaselineBuilder):
     """Class to rebuild baselines"""
 
-    def rebuild_for_test_correct_json_downloaded(self):
+    def rebuild_test_correct_json_downloaded(self):
         quoteURL = "\"http://en.wikiquote.org/w/api.php?format=json&action=query&titles=Friedrich%20Nietzsche&prop=revisions&rvprop=content\""
         safer_system_call('curl ' + quoteURL + ' > baselines/Friedrich_Nietzsche.json')
 
@@ -238,7 +246,7 @@ class WikiquotesRetrieverTest(unittest.TestCase):
             self.fail("No exception should be thrown")
 
     def test_invalid_title(self):
-        with self.assertRaises(InvalidTitleException): 
+        with self.assertRaises(InvalidTitleException):
             wiki_retriever = WikiquotesRetriever()
             wiki_retriever.setup_networking()
             online_json_content = wiki_retriever.download_quote("SpinozaBanana")
@@ -248,8 +256,7 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 def rebuild_baselines():
     print "!!!!Rebuilding baselines instead of running test!!!!"
     print "!!!!Execute at your own risk!!!!"
-    baselineBuilder = BaselineBuilder()
-    baselineBuilder.run_baselines_builders()
+    run_baselines_builders()
 
 def main():
     if REBUILD_BASELINES:
