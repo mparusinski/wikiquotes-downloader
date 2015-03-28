@@ -1,21 +1,26 @@
 # coding=UTF-8
 import json
-import re
-from StringIO import StringIO
 
-def inspect_json_object(json):
-    for key in json.iterkeys():
-        string_object_value = unicode(json[key])
+def inspect_json_object(json_obj):
+    for key in json_obj.iterkeys():
+        string_object_value = unicode(json_obj[key])
         print key + ": " + string_object_value[0:100]
 
-def inspect_json_list(json):
-    for elem in json:
+def inspect_json_list(json_obj):
+    for elem in json_obj:
         string_elem = unicode(elem)
         print string_elem[0:100]
 
+def get_content_at_address_json(json_obj, address_string):
+    tokens = address_string.split('.')
+    json_content = json_obj
+    for token in tokens:
+        json_content = json_content[token]
+    return json_content
+
 class WikitextIRNode(object):
     """Defines a node in the internal representation of a wikitext page"""
-    def __init__(self, current_string, parent_node = None):
+    def __init__(self, current_string, parent_node=None):
         self.current_string = current_string
         self.children = []
         self.parent_node = parent_node
@@ -91,7 +96,6 @@ class WikitextIRNode(object):
         nodes_children = node.get_children()
         for node_child in nodes_children:
             node_child.parentNode = self
-        nodes_index = self.children.index(node)
         new_children = []
         for child in self.children:
             if child == node:
@@ -101,7 +105,7 @@ class WikitextIRNode(object):
         self.children = new_children
 
 
-class WikitextIR:
+class WikitextIR(object):
     """Defines an internal representation of a wikitext page"""
     def __init__(self, wikitext):
         self.root_node = WikitextIRNode(wikitext.get_wikitext_title())
@@ -111,12 +115,11 @@ class WikitextIR:
         current_node = self.root_node
         current_depth = 0
         for line in text_to_parse.splitlines():
-            if self.__valid_line(line):
+            if line.startswith("== ") or (len(line) > 0 and line[0] == '*'):
                 depth = self.__find_depth(line)
                 if depth > current_depth: # Going deeper
-                    if not (depth - current_depth == 1):
-                        # TODO Raise appropriate error
-                        print "Parse error! Line " + line + " is not invalid"
+                    if not depth - current_depth == 1:
+                        raise InvalidWikitext("\"" + line + "\" is not invalid! Can't be parsed")
                     else:
                         new_node = WikitextIRNode(line, parent_node=current_node)
                         current_node.add_child(new_node)
@@ -132,9 +135,6 @@ class WikitextIR:
                     current_node = new_node
                     current_depth = depth
 
-    def __valid_line(self, line):
-        return line.startswith("== ") or (len(line) > 0 and line[0] == '*')
-
     def __find_depth(self, line):
         if line.startswith("== "):
             return 1
@@ -148,18 +148,20 @@ class WikitextIR:
         return self.root_node
 
     def to_string(self):
-        stringList = self.root_node.to_string_list("")
-        string_none_formatted = "\n".join(stringList)
+        string_list = self.root_node.to_string_list("")
+        string_none_formatted = "\n".join(string_list)
         return string_none_formatted.encode('UTF-8')
 
 
 class InvalidWikitext(Exception):
 
     def __init__(self, description):
+        super(InvalidWikitext, self).__init__(description)
         self.description = description
 
     def __str__(self):
         return repr(self.description)
+
 
 class Wikitext(object):
     """Wikitext that is embedded in a jsonString"""
@@ -182,17 +184,10 @@ class Wikitext(object):
     def __extract_wikitext(self, json_string):
         try:
             json_content = json.loads(json_string)
-            page = self.__get_address_json(json_content, self.key_string)
+            page = get_content_at_address_json(json_content, self.key_string)
             self.__process_page(page)
         except ValueError:
             raise InvalidWikitext("Not a valid JSON file")
-
-    def __get_address_json(self, json, address_string):
-        tokens = address_string.split('.')
-        json_content = json
-        for token in tokens:
-            json_content = json_content[token]
-        return json_content
 
     def get_wikitext_string(self):
         return self.wikitext
@@ -200,13 +195,7 @@ class Wikitext(object):
     def get_wikitext_title(self):
         return self.page_title
 
-def main():
-    with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
-        external_json_content = filehandle.read()
-        wikitext = Wikitext(external_json_content)
-        irinstance = WikitextIR(wikitext)
-        print irinstance.to_string()
 
 if __name__ == "__main__":
-    main()
+    pass
         
