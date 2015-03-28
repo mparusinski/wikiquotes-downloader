@@ -7,10 +7,15 @@ from IRBuilder import *
 from CleanIR import *
 from IRToJson import *
 
+DESCRIPTION="Download all quotes from a certain philosopher"
+
 def main():
-    parser = argparse.ArgumentParser(description="Download all quotes from a certain philosopher")
-    parser.add_argument('author', action="store", metavar='author', type=str, help='Name of the author you wish download quotes from')
-    parser.add_argument('--raw', action="store_true", dest="raw", help='Show internal representation obtained from wikiquotes with no parsing', default=False)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    parser.add_argument('author', action="store", metavar='author', type=str, \
+        help='Name of the author you wish download quotes from')
+    parser.add_argument('--raw', action="store_true", dest="raw", \
+        help='Show internal representation obtained from wikiquotes with no parsing', \
+        default=False)
     args = parser.parse_args()
     philosophers_name = args.author
     wiki_retriever = WikiquotesRetriever()
