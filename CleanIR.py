@@ -58,7 +58,7 @@ def remove_noise(wikitext_ir):
     remove_noise_sections(wikitext_ir)
 
 def remove_sections(wikitext_ir):
-    sections_regex= re.compile('== [a-zA-Z0-9\s]+ ==')
+    sections_regex = re.compile('== [a-zA-Z0-9\s]+ ==')
     root_node = wikitext_ir.get_root()
     root_node.remove_nodes_using_regex(sections_regex)
 
