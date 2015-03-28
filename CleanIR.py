@@ -18,6 +18,12 @@ def removeQuotesAboutX(wikitextIR):
 	rootNode = wikitextIR.getRoot()
 	rootNode.removeChildrenUsingRegex(aboutXRegex)
 
+def removeNoiseSections(wikitextIR):
+	"""Remove sections that have nothing to do with quotes"""
+	noiseSections = re.compile('== See also ==')
+	rootNode = wikitextIR.getRoot()
+	rootNode.removeChildrenUsingRegex(noiseSections)
+
 def fixTranslation(translatedNode):
 	children = translatedNode.getChildren()
 	firstChild = children[0]
@@ -45,10 +51,11 @@ def removeTranslations(wikitextIR):
 		for nodeTranslated in translatedNodes:
 			fixTranslation(nodeTranslated)
 
-def removeNoiseQuotes(wikitextIR):
+def removeNoise(wikitextIR):
 	removeMisattributed(wikitextIR)
 	removeDisputed(wikitextIR)
 	removeQuotesAboutX(wikitextIR)
+	removeNoiseSections(wikitextIR)
 
 def removeSections(wikitextIR):
 	sectionsRegex= re.compile('== [a-zA-Z0-9\s]+ ==')
@@ -79,7 +86,7 @@ def main():
 		externalJSONContent = filehandle.read()
 		wikitext = Wikitext(externalJSONContent)
 		irinstance = WikitextIR(wikitext)
-		removeNoiseQuotes(irinstance)
+		removeNoise(irinstance)
 		removeTranslations(irinstance)
 		cleanIR(irinstance)
 		print irinstance.toString()
