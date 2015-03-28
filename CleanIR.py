@@ -76,10 +76,20 @@ def removeLeadingStars(wikitextIR):
 	rootNode = wikitextIR.getRoot()
 	rootNode.doForAllAncestry(cleaningFunction)
 
+def removeQuoteDelimiters(wikitextIR):
+	def cleaningFunction(node):
+		string = node.getString()
+		newString = string.lstrip("'")
+		newString = newString.rstrip("'")
+		node.setString(newString)
+	rootNode = wikitextIR.getRoot()
+	rootNode.doForAllAncestry(cleaningFunction)
+
 def cleanIR(wikitextIR):
 	removeSections(wikitextIR)
 	removeSecondDepth(wikitextIR)
 	removeLeadingStars(wikitextIR)
+	removeQuoteDelimiters(wikitextIR)
 
 def main():
 	with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
