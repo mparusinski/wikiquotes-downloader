@@ -8,7 +8,7 @@ import copy
 
 from WikiquotesRetriever import *
 from IRBuilder import *
-from IRTransformation import *
+from CleanIR import *
 from DetectLanguage import *
 
 REBUILDBASELINES = False
