@@ -52,7 +52,7 @@ class LanguageDetector(object):
             self._language_regexes[key] = regexes_collection
 
     def __build_regex_from_word(self, word):
-        regex_string = r"(^" + word + ")|(\s" + word + "\s)|(" + word + "$)"
+        regex_string = r"(^" + word + ")|(\s" + word + r"\s)|(" + word + "$)"
         return re.compile(regex_string)
 
     def detect_language(self, string):
@@ -71,8 +71,5 @@ class LanguageDetector(object):
         return (count_total + 0.0) / words_in_text(string)
 
 
-def main():
-    pass
-
 if __name__ == '__main__':
-    main()
+    pass
