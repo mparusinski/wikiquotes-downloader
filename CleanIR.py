@@ -1,7 +1,7 @@
 # coding=UTF-8
 import re
-from IRBuilder import *
-from DetectLanguage import *
+from IRBuilder import WikitextIR
+from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
     misattributed_regex = re.compile('== Misattributed ==')
@@ -14,7 +14,7 @@ def remove_disputed(wikitext_ir):
     root_node.remove_children_using_regex(disputed_regex)
 
 def remove_quotes_about_x(wikitext_ir):
-    about_x_regex = re.compile('== Quotes about [a-zA-Z\s]+ ==')
+    about_x_regex = re.compile(r'== Quotes about [a-zA-Z\s]+ ==')
     root_node = wikitext_ir.get_root()
     root_node.remove_children_using_regex(about_x_regex)
 
@@ -58,7 +58,7 @@ def remove_noise(wikitext_ir):
     remove_noise_sections(wikitext_ir)
 
 def remove_sections(wikitext_ir):
-    sections_regex = re.compile('== [a-zA-Z0-9\s]+ ==')
+    sections_regex = re.compile(r'== [a-zA-Z0-9\s]+ ==')
     root_node = wikitext_ir.get_root()
     root_node.remove_nodes_using_regex(sections_regex)
 
@@ -117,15 +117,5 @@ def clean_ir(wikitext_ir):
     fix_internal_quotes(wikitext_ir)
     markup_cleaner(wikitext_ir)
 
-def main():
-    with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
-        external_json_content = filehandle.read()
-        wikitext = Wikitext(external_json_content)
-        irinstance = WikitextIR(wikitext)
-        remove_noise(irinstance)
-        remove_translations(irinstance)
-        clean_ir(irinstance)
-        print irinstance.toString()
-
 if __name__ == '__main__':
-    main()
+    pass
