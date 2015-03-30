@@ -11,7 +11,7 @@ from IRBuilder import *
 from CleanIR import *
 from DetectLanguage import *
 
-REBUILD_BASELINES = True
+REBUILD_BASELINES = False
 
 def safer_system_call(call):
     print "---------------------------------------------------------------------"
@@ -99,6 +99,15 @@ class IRTransformationsBaselines(BaselineBuilder):
             with open(baseline_file, 'w') as writehandle:
                 writehandle.write(wikitext_ir.to_string())
 
+    def rebuild_test_correct_noise_section_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_noise_sections.wikitextIR'
+        with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+            external_json_content = filehandle.read()
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            remove_noise_sections(wikitext_ir)
+            with open(baseline_file, 'w') as writehandle:
+                writehandle.write(wikitext_ir.to_string())
+
 
 class IRTransformationsTest(unittest.TestCase):
 
@@ -128,6 +137,16 @@ class IRTransformationsTest(unittest.TestCase):
             external_json_content = filehandle.read()
             wikitext_ir = create_wikitext_ir_from_json(external_json_content)
             remove_quotes_about_x(wikitext_ir)
+            with open(baseline_file, 'r') as baseline_file_handle:
+                baseline = baseline_file_handle.read()
+                self.assertTrue(baseline == wikitext_ir.to_string())
+
+    def test_correct_noise_section_removal(self):
+        baseline_file = 'baselines/Friedrich_Nietzsche_no_noise_sections.wikitextIR'
+        with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
+            external_json_content = filehandle.read()
+            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            remove_noise_sections(wikitext_ir)
             with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
                 self.assertTrue(baseline == wikitext_ir.to_string())

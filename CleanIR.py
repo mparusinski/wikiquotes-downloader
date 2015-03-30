@@ -94,18 +94,32 @@ def fix_internal_quotes(wikitext_ir):
     root_node = wikitext_ir.get_root()
     root_node.do_for_all_ancestry(fix_quote_helper)
 
+def remove_html(wikitext_ir):
+    html_regex = re.compile(r'<[/]?[\w]+>')
+    def remove_html_helper(node):
+        string = node.get_string()
+        new_string = html_regex.sub('', string)
+        node.set_string(new_string)
+    root_node = wikitext_ir.get_root()
+    root_node.do_for_all_ancestry(remove_html_helper)
+
+def clean_string_with_regexes(string, regex_sub_list):
+    new_string = string
+    for regex, sub_str in regex_sub_list:
+        new_string = regex.sub(sub_str, new_string)
+    return new_string
+
 def markup_cleaner(wikitext_ir):
-    """
-    Markup is completely removed and is unsupported for now
-    """
-    italic_regex = re.compile(r'\'\'')
-    bold_regex = re.compile(r'\'\'\'')
-    # TODO: Add support for escape wiki markup
+    regex_sub_list = []
+    regex_sub_list.append((re.compile(r'\'\'\''), r''))
+    regex_sub_list.append((re.compile(r'\'\''), r''))
+    regex_sub_list.append((re.compile(r'\[\[([\s\w:\.\\/]+\|)([\s\w]+)\]\]', re.UNICODE), r'\2'))
+    regex_sub_list.append((re.compile(r'\[\[([\w\s]+)\]\]', re.UNICODE), r'\1'))
+    regex_sub_list.append((re.compile(r'\[(.+)\]'), r''))
     def clean_markup_internal(node):
         string = node.get_string()
-        no_bold_string = bold_regex.sub('', string)
-        no_italic_no_bold_string = italic_regex.sub('', no_bold_string)
-        node.set_string(no_italic_no_bold_string)
+        clean_string = clean_string_with_regexes(string, regex_sub_list)
+        node.set_string(clean_string)
     root_node = wikitext_ir.get_root()
     root_node.do_for_all_ancestry(clean_markup_internal)
 
@@ -116,6 +130,7 @@ def clean_ir(wikitext_ir):
     remove_quote_delimiters(wikitext_ir)
     fix_internal_quotes(wikitext_ir)
     markup_cleaner(wikitext_ir)
+    remove_html(wikitext_ir)
 
 if __name__ == '__main__':
     pass
