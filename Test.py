@@ -3,8 +3,9 @@ import unittest
 import os
 import sys
 import re
-import subprocess
 import copy
+import pycurl
+import StringIO
 
 from WikiquotesRetriever import *
 from IRBuilder import *
@@ -278,10 +279,23 @@ def rebuild_baselines():
     run_baselines_builders()
 
 def main():
-    if REBUILD_BASELINES:
-        rebuild_baselines()
-    else:
-        unittest.main()
+    wikiquote_url = "http://en.wikiquote.org"
+    try:
+        curler = pycurl.Curl()
+        buffer_string = StringIO()
+        curler.setopt(curler.URL, wikiquote_url)
+        curler.setopt(curler.WRITEDATA, buffer_string)
+        curler.perform()
+        curler.close()
+        if REBUILD_BASELINES:
+            rebuild_baselines()
+        else:
+            unittest.main()
+    except:
+        print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        print "!!!! ERROR: Unable to get Curl to connect wikiquote main page. !!!!"
+        print "!!!! A connection to wikiquote is required to run the tests    !!!!"
+        print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 if __name__ == "__main__":
     main()

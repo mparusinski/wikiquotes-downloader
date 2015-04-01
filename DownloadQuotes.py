@@ -2,7 +2,7 @@
 import sys
 import argparse
 
-from WikiquotesRetriever import WikiquotesRetriever
+from WikiquotesRetriever import WikiquotesRetriever, NetworkingException
 from IRBuilder import create_wikitext_ir_from_json
 from CleanIR import remove_noise, remove_translations, clean_ir
 from IRToJson import create_json_from_ir
@@ -20,17 +20,20 @@ def main():
     philosophers_name = args.author
     wiki_retriever = WikiquotesRetriever()
     wiki_retriever.setup_networking()
-    json_content = wiki_retriever.download_quote(philosophers_name)
-    wiki_retriever.close_networking()
-    irinstance = create_wikitext_ir_from_json(json_content)
-    if args.raw:
-        print irinstance.to_string()
-    else:
-        remove_noise(irinstance)
-        remove_translations(irinstance)
-        clean_ir(irinstance)
-        json_string = create_json_from_ir(irinstance)
-        print json_string.encode('UTF-8')
+    try:
+        json_content = wiki_retriever.download_quote(philosophers_name)
+        wiki_retriever.close_networking()
+        irinstance = create_wikitext_ir_from_json(json_content)
+        if args.raw:
+            print irinstance.to_string()
+        else:
+            remove_noise(irinstance)
+            remove_translations(irinstance)
+            clean_ir(irinstance)
+            json_string = create_json_from_ir(irinstance)
+            print json_string.encode('UTF-8')
+    except NetworkingException as e:
+        print e
 
 if __name__ == '__main__':
     main()
