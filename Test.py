@@ -274,8 +274,10 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 
 
 def rebuild_baselines():
-    print "!!!!Rebuilding baselines instead of running test!!!!"
-    print "!!!!Execute at your own risk!!!!"
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    print "!!!! WARNING: Rebuilding baselines instead of running tests        !!!!"
+    print "!!!! Execute at your own risk                                      !!!!"
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     run_baselines_builders()
 
 def main():
@@ -291,7 +293,7 @@ def main():
             rebuild_baselines()
         else:
             unittest.main()
-    except:
+    except NetworkingException:
         print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         print "!!!! ERROR: Unable to get Curl to connect wikiquote main page. !!!!"
         print "!!!! A connection to wikiquote is required to run the tests    !!!!"
