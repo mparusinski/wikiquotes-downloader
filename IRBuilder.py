@@ -163,43 +163,21 @@ class InvalidWikitext(Exception):
         return repr(self.description)
 
 
-class Wikitext(object):
-    """Wikitext that is embedded in a jsonString"""
-    def __init__(self, json_string):
-        self.nodes = []
-        self.key_string = "query.pages"
-        self.page_title = None
-        self.wikitext = None
-        self.__extract_wikitext(json_string)
-
-    def __process_page(self, page):
+def wikitext_from_json(json_string):
+    try:
+        json_object = json.loads(json_string)
+        page = get_content_at_address_json(json_object, "query.pages")
         page_keys = page.keys()
         page_id = page_keys[0]
         page_internal = page[page_id]
-        self.page_title = page_internal['title']
         page_content = page_internal['revisions']
         page_element = page_content[0]
-        self.wikitext = page_element["*"]
-
-    def __extract_wikitext(self, json_string):
-        try:
-            json_content = json.loads(json_string)
-            page = get_content_at_address_json(json_content, self.key_string)
-            self.__process_page(page)
-        except ValueError:
-            raise InvalidWikitext("Not a valid JSON file")
-
-    def get_wikitext_string(self):
-        return self.wikitext
-
-    def get_wikitext_title(self):
-        return self.page_title
-
+        return page_element['*']
+    except:
+        raise InvalidWikitext("Not a valid JSON string")
 
 def create_wikitext_ir_from_json(json_content):
-    wikitext = Wikitext(json_content)
-    irinstance = WikitextIR(wikitext)
-    return irinstance
+    return WikitextIR(wikitext_from_json(json_content))
 
 if __name__ == "__main__":
     pass

@@ -193,9 +193,9 @@ class WikitextExtractorBaselines(BaselineBuilder):
     def rebuild_test_correct_wikitext_built(self):
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
+            wikitext = wikitext_from_json(external_json_content)
             with open('baselines/Friedrich_Nietzsche.wikitext', 'w') as writehandle:
-                writehandle.write(wikitext.get_wikitext_string().encode('UTF-8'))
+                writehandle.write(wikitext.encode('UTF-8'))
 
 
 class WikitextExtractorTest(unittest.TestCase):
@@ -204,10 +204,10 @@ class WikitextExtractorTest(unittest.TestCase):
         baseline_file = 'baselines/Friedrich_Nietzsche.wikitext'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = Wikitext(external_json_content)
+            wikitext = wikitext_from_json(external_json_content)
             with open(baseline_file, 'r') as readhandle:
                 wikitextbaseline = readhandle.read()
-                self.assertTrue(wikitext.get_wikitext_string().encode('UTF-8') == wikitextbaseline)
+                self.assertTrue(wikitext.encode('UTF-8') == wikitextbaseline)
 
     def test_other_wikitext_build(self):
         wiki_retriever = WikiquotesRetriever()
@@ -293,7 +293,7 @@ def main():
             rebuild_baselines()
         else:
             unittest.main()
-    except NetworkingException:
+    except pycurl.error:
         print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         print "!!!! ERROR: Unable to get Curl to connect wikiquote main page. !!!!"
         print "!!!! A connection to wikiquote is required to run the tests    !!!!"
