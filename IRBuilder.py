@@ -1,18 +1,13 @@
 # coding=UTF-8
 import json
 
-def inspect_json_object(json_obj):
+def inspect_json(json_obj):
     for key in json_obj.iterkeys():
         string_object_value = unicode(json_obj[key])
         print key + ": " + string_object_value[0:100]
 
-def inspect_json_list(json_obj):
-    for elem in json_obj:
-        string_elem = unicode(elem)
-        print string_elem[0:100]
-
-def get_content_at_address_json(json_obj, address_string):
-    tokens = address_string.split('.')
+def json_elem_at(json_obj, address):
+    tokens = address.split('.')
     json_content = json_obj
     for token in tokens:
         json_content = json_content[token]
@@ -49,7 +44,7 @@ class WikitextIRNode(object):
             accum = accum + child_string_list
         return accum
 
-    def to_string(self):
+    def __str__(self):
         string_list = self.to_string_list("")
         return "\n".join(string_list)
 
@@ -108,8 +103,9 @@ class WikitextIRNode(object):
 class WikitextIR(object):
     """Defines an internal representation of a wikitext page"""
     def __init__(self, wikitext):
-        self.root_node = WikitextIRNode(wikitext.get_wikitext_title())
-        self.__parse_text(wikitext.get_wikitext_string())
+        title, wikitext_content = wikitext
+        self.root_node = WikitextIRNode(title)
+        self.__parse_text(wikitext_content)
 
     def __parse_text(self, text_to_parse):
         current_node = self.root_node
@@ -144,10 +140,7 @@ class WikitextIR(object):
                     return idx + 1
         return -1
 
-    def get_root(self):
-        return self.root_node
-
-    def to_string(self):
+    def __str__(self):
         string_list = self.root_node.to_string_list("")
         string_none_formatted = "\n".join(string_list)
         return string_none_formatted.encode('UTF-8')
@@ -166,19 +159,22 @@ class InvalidWikitext(Exception):
 def wikitext_from_json(json_string):
     try:
         json_object = json.loads(json_string)
-        page = get_content_at_address_json(json_object, "query.pages")
+        page = json_elem_at(json_object, "query.pages")
         page_keys = page.keys()
         page_id = page_keys[0]
         page_internal = page[page_id]
         page_content = page_internal['revisions']
+        page_title = page_internal['title']
         page_element = page_content[0]
-        return page_element['*']
+        return page_title, page_element['*']
     except:
         raise InvalidWikitext("Not a valid JSON string")
 
-def create_wikitext_ir_from_json(json_content):
+def ir_from_json(json_content):
     return WikitextIR(wikitext_from_json(json_content))
 
 if __name__ == "__main__":
-    pass
+    fhandle = open("baselines/Friedrich_Nietzsche.json", "r")
+    content = fhandle.read()
+    print ir_from_json(content)
         

@@ -77,37 +77,37 @@ class IRTransformationsBaselines(BaselineBuilder):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_disputed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_disputed(wikitext_ir)
             with open(baseline_file, 'w') as writehandle:
-                writehandle.write(wikitext_ir.to_string())
+                writehandle.write(wikitext_ir)
 
     def rebuild_test_correct_misattributed_removal(self):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_misattributed(wikitext_ir)
             with open(baseline_file, 'w') as writehandle:
-                writehandle.write(wikitext_ir.to_string())
+                writehandle.write(wikitext_ir)
 
     def rebuild_test_correct_quote_about_x_removal(self):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_quotes_about_x(wikitext_ir)
             with open(baseline_file, 'w') as writehandle:
-                writehandle.write(wikitext_ir.to_string())
+                writehandle.write(wikitext_ir)
 
     def rebuild_test_correct_noise_section_removal(self):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_noise_sections.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_noise_sections(wikitext_ir)
             with open(baseline_file, 'w') as writehandle:
-                writehandle.write(wikitext_ir.to_string())
+                writehandle.write(wikitext_ir)
 
 
 class IRTransformationsTest(unittest.TestCase):
@@ -116,53 +116,53 @@ class IRTransformationsTest(unittest.TestCase):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_disputed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_disputed(wikitext_ir)
             with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
-                self.assertTrue(baseline == wikitext_ir.to_string())
+                self.assertTrue(baseline == wikitext_ir)
 
     def test_correct_misattributed_removal(self):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_misattributed.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_misattributed(wikitext_ir)
             with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
-                self.assertTrue(baseline == wikitext_ir.to_string())
+                self.assertTrue(baseline == wikitext_ir)
 
     def test_correct_quote_about_x_removal(self):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_quotes_about_x.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_quotes_about_x(wikitext_ir)
             with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
-                self.assertTrue(baseline == wikitext_ir.to_string())
+                self.assertTrue(baseline == wikitext_ir)
 
     def test_correct_noise_section_removal(self):
         baseline_file = 'baselines/Friedrich_Nietzsche_no_noise_sections.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             remove_noise_sections(wikitext_ir)
             with open(baseline_file, 'r') as baseline_file_handle:
                 baseline = baseline_file_handle.read()
-                self.assertTrue(baseline == wikitext_ir.to_string())
+                self.assertTrue(baseline == wikitext_ir)
 
     def test_removers_commute(self):
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir_left = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir_left = ir_from_json(external_json_content)
             wikitext_ir_right = copy.deepcopy(wikitext_ir_left)
             remove_misattributed(wikitext_ir_left)
             remove_disputed(wikitext_ir_left)
             remove_disputed(wikitext_ir_right)
             remove_misattributed(wikitext_ir_right)
             self.assertTrue(\
-                wikitext_ir_left.to_string() == wikitext_ir_right.to_string())
+                wikitext_ir_left == wikitext_ir_right)
 
 
 class WikitextIRBaselines(BaselineBuilder):
@@ -171,9 +171,9 @@ class WikitextIRBaselines(BaselineBuilder):
         baseline_file = 'baselines/Friedrich_Nietzsche.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             with open(baseline_file, 'w') as writehandle:
-                writehandle.write(wikitext_ir.to_string())
+                writehandle.write(wikitext_ir)
 
 
 class WikitextIRTest(unittest.TestCase):
@@ -182,10 +182,10 @@ class WikitextIRTest(unittest.TestCase):
         baseline_file = 'baselines/Friedrich_Nietzsche.wikitextIR'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext_ir = create_wikitext_ir_from_json(external_json_content)
+            wikitext_ir = ir_from_json(external_json_content)
             with open(baseline_file, 'r') as baseline_file_handle:
                 baseline_ir = baseline_file_handle.read()
-                self.assertTrue(baseline_ir == wikitext_ir.to_string())
+                self.assertTrue(baseline_ir == wikitext_ir)
 
 
 class WikitextExtractorBaselines(BaselineBuilder):
@@ -193,9 +193,9 @@ class WikitextExtractorBaselines(BaselineBuilder):
     def rebuild_test_correct_wikitext_built(self):
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = wikitext_from_json(external_json_content)
+            title, wikitext_content = wikitext_from_json(external_json_content)
             with open('baselines/Friedrich_Nietzsche.wikitext', 'w') as writehandle:
-                writehandle.write(wikitext.encode('UTF-8'))
+                writehandle.write(wikitext_content.encode('UTF-8'))
 
 
 class WikitextExtractorTest(unittest.TestCase):
@@ -204,21 +204,21 @@ class WikitextExtractorTest(unittest.TestCase):
         baseline_file = 'baselines/Friedrich_Nietzsche.wikitext'
         with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
             external_json_content = filehandle.read()
-            wikitext = wikitext_from_json(external_json_content)
+            title, wikitext_content = wikitext_from_json(external_json_content)
             with open(baseline_file, 'r') as readhandle:
                 wikitextbaseline = readhandle.read()
-                self.assertTrue(wikitext.encode('UTF-8') == wikitextbaseline)
+                self.assertTrue(wikitext_content.encode('UTF-8') == wikitextbaseline)
 
     def test_other_wikitext_build(self):
         wiki_retriever = WikiquotesRetriever()
         wiki_retriever.setup_networking()
         online_json_content = wiki_retriever.download_quote("Baruch Spinoza")
         wiki_retriever.close_networking()
-        wikitext = Wikitext(online_json_content)
+        title, wikitext_content = wikitext_from_json(online_json_content)
 
     def test_empty_wikitext(self):
         with self.assertRaises(InvalidWikitext):
-            wikitext = Wikitext("")
+            title, wikitext = wikitext_from_json("")
 
 
 class WikiquotesRetrieverBaselines(BaselineBuilder):

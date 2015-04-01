@@ -3,7 +3,7 @@ import sys
 import argparse
 
 from WikiquotesRetriever import WikiquotesRetriever, NetworkingException
-from IRBuilder import create_wikitext_ir_from_json
+from IRBuilder import ir_from_json
 from CleanIR import remove_noise, remove_translations, clean_ir
 from IRToJson import create_json_from_ir
 
@@ -23,7 +23,7 @@ def main():
     try:
         json_content = wiki_retriever.download_quote(philosophers_name)
         wiki_retriever.close_networking()
-        irinstance = create_wikitext_ir_from_json(json_content)
+        irinstance = ir_from_json(json_content)
         if args.raw:
             print irinstance.to_string()
         else:
