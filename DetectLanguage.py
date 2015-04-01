@@ -1,31 +1,14 @@
 # coding=UTF-8
 import re
+import os
 
-COMMON_WORDS_IN_ENGLISH = ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have' \
-                          , 'I', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you' \
-                          , 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they' \
-                          , 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one' \
-                          , 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out' \
-                          , 'if', 'about', 'who', 'get', 'which', 'go', 'make', 'can' \
-                          , 'like', 'time', 'know', 'just', 'him', 'take', 'people', 'into' \
-                          , 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other' \
-                          , 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over' \
-                          , 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our' \
-                          , 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because' \
-                          , 'any', 'these', 'give', 'day', 'most']
-
-COMMON_WORDS_IN_GERMAN = ['das', 'du', 'die', 'ich', 'nicht', 'die', 'es', 'und', 'Sie' \
-                         , 'der', 'was', 'wir', 'zu', 'ein', 'er', 'in', 'sie', 'mir', 'mit' \
-                         , 'ja', 'wie', 'den', 'auf', 'mich', 'dass', 'so', 'hier', 'ein' \
-                         , 'wenn', 'hat', 'all', 'sind', 'von', 'dich', 'war', 'haben', 'für' \
-                         , 'an', 'habe', 'da', 'nein', 'bin', 'noch', 'dir', 'uns', 'sich' \
-                         , 'nur', 'einen', 'kann', 'dem', 'auch', 'schon', 'als', 'dann', 'ihn' \
-                         , 'mal', 'hast', 'sein', 'ihr', 'aus', 'um', 'aber', 'meine', 'Aber' \
-                         , 'wir', 'doch', 'mein', 'bist', 'im', 'keine', 'gut', 'oder', 'weiß' \
-                         , 'jetzt', 'man', 'nach', 'werden', 'wo', 'Oh', 'will', 'also', 'mehr' \
-                         , 'immer', 'muss', 'warum', 'bei', 'etwas', 'nichts', 'bitte', 'wieder' \
-                         , 'machen', 'diese', 'vor', 'können', 'hab', 'zum', 'gehen', 'sehr' \
-                         , 'geht', 'sehen']
+def read_dictionary(filepath):
+  dictionary = []
+  with open(filepath, 'r') as fhandle:
+    for line in fhandle:
+      word = line.rstrip("\n")
+      dictionary.append(word)
+  return dictionary
 
 def words_in_text(text):
     return len(text.split(" "))
@@ -39,8 +22,13 @@ class LanguageDetector(object):
         self.__compile_regexes()
 
     def __load_dictionaries(self):
-        self.dictionaries['English'] = COMMON_WORDS_IN_ENGLISH
-        self.dictionaries['German'] = COMMON_WORDS_IN_GERMAN
+      directory_name = "dictionaries"
+      valid_dictionaries_regex = re.compile(r'^[\w]+\.txt$')
+      for file_name in os.listdir(directory_name):
+        if valid_dictionaries_regex.match(file_name):
+          file_path = directory_name + '/' + file_name
+          dictionary_name = file_name[:-len(".txt")]
+          self.dictionaries[dictionary_name] = read_dictionary(file_path)
 
     def __compile_regexes(self):
         for key in self.dictionaries.keys():
