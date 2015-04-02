@@ -13,7 +13,7 @@ def json_elem_at(json_obj, address):
         json_content = json_content[token]
     return json_content
 
-class WikitextIRNode(object):
+class IRNode(object):
     """Defines a node in the internal representation of a wikitext page"""
     def __init__(self, current_string, parent_node=None):
         self.current_string = current_string
@@ -100,36 +100,42 @@ class WikitextIRNode(object):
         self.children = new_children
 
 
-class WikitextIR(object):
+class InternalRepresentation(object):
     """Defines an internal representation of a wikitext page"""
     def __init__(self, wikitext):
         title, wikitext_content = wikitext
-        self.root_node = WikitextIRNode(title)
+        self.root_node = IRNode(title)
         self.__parse_text(wikitext_content)
 
     def __parse_text(self, text_to_parse):
         current_node = self.root_node
         current_depth = 0
         for line in text_to_parse.splitlines():
-            if line.startswith("== ") or (len(line) > 0 and line[0] == '*'):
-                depth = self.__find_depth(line)
-                if depth > current_depth: # Going deeper
-                    if not depth - current_depth == 1:
-                        raise InvalidWikitext("\"" + line + "\" is not invalid! Can't be parsed")
-                    else:
-                        new_node = WikitextIRNode(line, parent_node=current_node)
-                        current_node.add_child(new_node)
-                        current_node = new_node
-                        current_depth = depth
-                else:
-                    drop_amount = current_depth - depth
-                    for i in xrange(drop_amount):
-                        current_node = current_node.get_parent()
-                    parent_node = current_node.get_parent()
-                    new_node = WikitextIRNode(line, parent_node=parent_node)
-                    parent_node.add_child(new_node)
-                    current_node = new_node
-                    current_depth = depth
+            if line.startswith("== ") or line.startswith("*"):
+                current_node, current_depth = \
+                    self.__parse_text_line(line, current_node, current_depth)
+
+    def __parse_text_line(self, line, current_node, current_depth):
+        depth = self.__find_depth(line)
+        if depth > current_depth: # Going deeper
+            if not depth - current_depth == 1:
+                raise InvalidWikitext("\"" + line + "\" is not valid!"\
+                    " Can't be parsed")
+            else:
+                new_node = IRNode(line, parent_node=current_node)
+                current_node.add_child(new_node)
+                current_node = new_node
+                current_depth = depth
+        else:
+            drop_amount = current_depth - depth
+            for i in xrange(drop_amount):
+                current_node = current_node.parent_node
+            curr_parent_node = current_node.parent_node
+            new_node = IRNode(line, parent_node=curr_parent_node)
+            curr_parent_node.add_child(new_node)
+            current_node = new_node
+            current_depth = depth
+        return current_node, current_depth
 
     def __find_depth(self, line):
         if line.startswith("== "):
@@ -171,10 +177,7 @@ def wikitext_from_json(json_string):
         raise InvalidWikitext("Not a valid JSON string")
 
 def ir_from_json(json_content):
-    return WikitextIR(wikitext_from_json(json_content))
+    return InternalRepresentation(wikitext_from_json(json_content))
 
 if __name__ == "__main__":
-    fhandle = open("baselines/Friedrich_Nietzsche.json", "r")
-    content = fhandle.read()
-    print ir_from_json(content)
-        
+    pass

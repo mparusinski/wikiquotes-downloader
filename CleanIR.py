@@ -1,27 +1,27 @@
 # coding=UTF-8
 import re
-from IRBuilder import WikitextIR
+from IRBuilder import InternalRepresentation, ir_from_json
 from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
     misattributed_regex = re.compile('== Misattributed ==')
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(misattributed_regex)
 
 def remove_disputed(wikitext_ir):
-    disputed_regex = re.compile('== Disputed ==')
-    root_node = wikitext_ir.get_root()
+    disputed_regex = re.compile(r'== Disputed ==')
+    root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(disputed_regex)
 
 def remove_quotes_about_x(wikitext_ir):
     about_x_regex = re.compile(r'== Quotes about [a-zA-Z\s]+ ==')
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(about_x_regex)
 
 def remove_noise_sections(wikitext_ir):
     """Remove sections that have nothing to do with quotes"""
-    noise_sections = re.compile('== See also ==')
-    root_node = wikitext_ir.get_root()
+    noise_sections = re.compile(r'== See also ==')
+    root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(noise_sections)
 
 def fix_translation(translated_node):
@@ -36,8 +36,8 @@ def remove_translations(wikitext_ir):
     language_detector = LanguageDetector()
     def detect_translation(node):
         return not language_detector.detect_language(node.get_string()) == "English"
-    root_node = wikitext_ir.get_root()
-    quotes_regex = re.compile('(== Quotes ==)|(== Quotations ==)')
+    root_node = wikitext_ir.root_node
+    quotes_regex = re.compile(r'(== Quotes ==)|(== Quotations ==)')
     quotes_subnodes = root_node.find_children_using_regex(quotes_regex)
     num_subnodes = len(quotes_subnodes)
     if num_subnodes > 1:
@@ -59,11 +59,11 @@ def remove_noise(wikitext_ir):
 
 def remove_sections(wikitext_ir):
     sections_regex = re.compile(r'== [a-zA-Z0-9\s]+ ==')
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.remove_nodes_using_regex(sections_regex)
 
 def remove_second_depth(wikitext_ir):
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     children = root_node.get_children()
     for child in children:
         child.remove_children()
@@ -73,7 +73,7 @@ def remove_leading_stars(wikitext_ir):
         string = node.get_string()
         new_string = string.lstrip('* ')
         node.set_string(new_string)
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.do_for_all_ancestry(cleaning_function)
 
 def remove_quote_delimiters(wikitext_ir):
@@ -82,7 +82,7 @@ def remove_quote_delimiters(wikitext_ir):
         new_string = string.lstrip("'")
         new_string = new_string.rstrip("'")
         node.set_string(new_string)
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.do_for_all_ancestry(cleaning_function)
 
 def fix_internal_quotes(wikitext_ir):
@@ -91,7 +91,7 @@ def fix_internal_quotes(wikitext_ir):
         string = node.get_string()
         new_string = double_quote_regex.sub('\\\"', string)
         node.set_string(new_string)
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.do_for_all_ancestry(fix_quote_helper)
 
 def remove_html(wikitext_ir):
@@ -100,7 +100,7 @@ def remove_html(wikitext_ir):
         string = node.get_string()
         new_string = html_regex.sub('', string)
         node.set_string(new_string)
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.do_for_all_ancestry(remove_html_helper)
 
 def clean_string_with_regexes(string, regex_sub_list):
@@ -120,7 +120,7 @@ def markup_cleaner(wikitext_ir):
         string = node.get_string()
         clean_string = clean_string_with_regexes(string, regex_sub_list)
         node.set_string(clean_string)
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     root_node.do_for_all_ancestry(clean_markup_internal)
 
 def clean_ir(wikitext_ir):
@@ -133,4 +133,9 @@ def clean_ir(wikitext_ir):
     remove_html(wikitext_ir)
 
 if __name__ == '__main__':
-    pass
+    fhandle = open("baselines/Friedrich_Nietzsche.json", "r")
+    content = fhandle.read()
+    irinstance = ir_from_json(content)
+    remove_noise(irinstance)
+    clean_ir(irinstance)
+    print irinstance
