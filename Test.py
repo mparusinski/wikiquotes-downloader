@@ -8,7 +8,7 @@ import pycurl
 import StringIO
 
 from WikiquotesRetriever import *
-from IRBuilder import *
+from InternalRepresentation import *
 from CleanIR import *
 from DetectLanguage import *
 

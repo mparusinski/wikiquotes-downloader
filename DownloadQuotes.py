@@ -3,7 +3,7 @@ import sys
 import argparse
 
 from WikiquotesRetriever import WikiquotesRetriever, NetworkingException
-from IRBuilder import ir_from_json
+from InternalRepresentation import ir_from_json
 from CleanIR import remove_noise, remove_translations, clean_ir
 from IRToJson import create_json_from_ir
 

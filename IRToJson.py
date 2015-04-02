@@ -1,5 +1,5 @@
 # coding=UTF-8
-from IRBuilder import *
+from InternalRepresentation import InternalRepresentation
 from CleanIR import *
 
 class IRNotReady(Exception):
@@ -30,17 +30,5 @@ def create_json_from_ir(wikitext_ir):
     return json_string
 
 
-def main():
-    with open('baselines/Friedrich_Nietzsche.json', 'r') as filehandle:
-        external_json_content = filehandle.read()
-        wikitext = Wikitext(external_json_content)
-        irinstance = WikitextIR(wikitext)
-        # Technically they should work on both on the same instance
-        remove_noise_quotes(irinstance)
-        remove_translations(irinstance)
-        clean_ir(irinstance)
-        json_string = create_json_from_ir(irinstance)
-        print json_stringT
-
 if __name__ == '__main__':
-    main()
+    pass

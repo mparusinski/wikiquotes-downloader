@@ -1,6 +1,6 @@
 # coding=UTF-8
 import re
-from IRBuilder import InternalRepresentation, ir_from_json
+from InternalRepresentation import InternalRepresentation, ir_from_json
 from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
