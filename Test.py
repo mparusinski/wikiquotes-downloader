@@ -93,6 +93,24 @@ class TestIRNode(unittest.TestCase):
         self.assertTrue(len(singlechildparent.children) == 0)
         self.assertTrue(childnode.parent_node == None)
 
+    def test_remove_children_nasty_case(self):
+        anode = IRNode("")
+        anode.add_child_node(anode)
+        anode.remove_children()
+        self.assertTrue(len(anode.children) == 0)
+
+    def test_remove_child_no_children(self):
+        anode = IRNode("")
+        anode.remove_child(IRNode("dummy"))
+
+    def test_remove_child_simple(self):
+        aparent = IRNode("parent")
+        achild = IRNode("child")
+        aparent.add_child_node(achild)
+        aparent.remove_child(achild)
+        self.assertFalse(achild in aparent.children)
+        self.assertTrue(achild.parent_node == None)
+
 
 class TestDetectLanguage(unittest.TestCase):
 

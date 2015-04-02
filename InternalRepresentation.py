@@ -95,7 +95,9 @@ class IRNode(object):
                 self.children.remove(child)
 
     def remove_child(self, child):
-        self.children.remove(child)
+        if child in self.children:
+            child.parent_node = None
+            self.children.remove(child)
 
     def remove_nodes_using_regex(self, regex):
         children_list_copy = list(self.children)
