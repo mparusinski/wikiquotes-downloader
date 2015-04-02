@@ -25,7 +25,7 @@ def main():
         wiki_retriever.close_networking()
         irinstance = ir_from_json(json_content)
         if args.raw:
-            print irinstance.to_string()
+            print irinstance
         else:
             remove_noise(irinstance)
             remove_translations(irinstance)

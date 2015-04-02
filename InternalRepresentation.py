@@ -15,23 +15,17 @@ def json_elem_at(json_obj, address):
 
 class IRNode(object):
     """Defines a node in the internal representation of a wikitext page"""
-    def __init__(self, current_string, parent_node=None):
-        self.current_string = current_string
+    def __init__(self, value, parent_node=None):
+        self.value = value
         self.children = []
         self.parent_node = parent_node
 
-    def add_child(self, wikitext_ir_node):
+    def add_child_node(self, wikitext_ir_node):
         self.children.append(wikitext_ir_node)
-
-    def set_string(self, new_string):
-        self.current_string = new_string
-
-    def get_string(self):
-        return self.current_string
 
     def to_string_list(self, tabulation):
         """Build a list of strings"""
-        first_item = tabulation + self.current_string
+        first_item = tabulation + self.value
         accum = [first_item]
         for child in self.children:
             child_string_list = child.to_string_list(tabulation + "  ")
@@ -51,7 +45,7 @@ class IRNode(object):
         # assuming regex is precompiled
         found_list = []
         for child in self.children:
-            if regex.match(child.get_string()):
+            if regex.match(child.value):
                 found_list.append(child)
         return found_list
 
@@ -68,7 +62,7 @@ class IRNode(object):
     def remove_children_using_regex(self, regex):
         children_list_copy = list(self.children) # copy, but not deepcopy
         for child in children_list_copy:
-            if regex.match(child.get_string()):
+            if regex.match(child.value):
                 self.children.remove(child)
 
     def remove_child(self, child):
@@ -77,7 +71,7 @@ class IRNode(object):
     def remove_nodes_using_regex(self, regex):
         children_list_copy = list(self.children)
         for child in children_list_copy:
-            if regex.match(child.get_string()):
+            if regex.match(child.value):
                 self.remove_child_node(child)
 
     def remove_child_node(self, node):
@@ -117,7 +111,7 @@ class InternalRepresentation(object):
                     " Can't be parsed")
             else:
                 new_node = IRNode(line, parent_node=current_node)
-                current_node.add_child(new_node)
+                current_node.add_child_node(new_node)
                 current_node = new_node
                 current_depth = depth
         else:
@@ -126,7 +120,7 @@ class InternalRepresentation(object):
                 current_node = current_node.parent_node
             curr_parent_node = current_node.parent_node
             new_node = IRNode(line, parent_node=curr_parent_node)
-            curr_parent_node.add_child(new_node)
+            curr_parent_node.add_child_node(new_node)
             current_node = new_node
             current_depth = depth
         return current_node, current_depth

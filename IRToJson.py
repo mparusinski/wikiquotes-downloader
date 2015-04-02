@@ -17,11 +17,11 @@ def create_json_from_ir(wikitext_ir):
     root_node = wikitext_ir.root_node
     if root_node == None:
         raise IRNotReady("No root node in IR")
-    author = root_node.get_string()
+    author = root_node.value
     children = root_node.children
     string_list = []
     for child in children:
-        quote_text = child.get_string()
+        quote_text = child.value
         quote_string = tab + tab + "{\n" + tab + tab + tab + "\"quoteText\": \"" + quote_text + "\","
         quote_string = quote_string + "\n" + tab + tab + tab + "\"philosopher\": \"" + author + "\"\n" + tab + tab + "}"
         string_list.append(quote_string)
