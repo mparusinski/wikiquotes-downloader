@@ -71,27 +71,27 @@ def remove_leading_stars(wikitext_ir):
     def cleaning_function(node):
         node.value = node.value.lstrip('* ')
     root_node = wikitext_ir.root_node
-    root_node.do_for_all_ancestry(cleaning_function)
+    root_node.do_for_all_in_tree(cleaning_function)
 
 def remove_quote_delimiters(wikitext_ir):
     def cleaning_function(node):
         node.value = node.value.lstrip("'").rstrip("'")
     root_node = wikitext_ir.root_node
-    root_node.do_for_all_ancestry(cleaning_function)
+    root_node.do_for_all_in_tree(cleaning_function)
 
 def fix_internal_quotes(wikitext_ir):
     double_quote_regex = re.compile(r'(\")')
     def fix_quote_helper(node):
         node.value = double_quote_regex.sub('\\\"', node.value)
     root_node = wikitext_ir.root_node
-    root_node.do_for_all_ancestry(fix_quote_helper)
+    root_node.do_for_all_in_tree(fix_quote_helper)
 
 def remove_html(wikitext_ir):
     html_regex = re.compile(r'<[/]?[\w]+>')
     def remove_html_helper(node):
         node.value = html_regex.sub('', node.value)
     root_node = wikitext_ir.root_node
-    root_node.do_for_all_ancestry(remove_html_helper)
+    root_node.do_for_all_in_tree(remove_html_helper)
 
 def clean_string_with_regexes(string, regex_sub_list):
     new_string = string
@@ -109,7 +109,7 @@ def markup_cleaner(wikitext_ir):
     def clean_markup_internal(node):
         node.value = clean_string_with_regexes(node.value, regex_sub_list)
     root_node = wikitext_ir.root_node
-    root_node.do_for_all_ancestry(clean_markup_internal)
+    root_node.do_for_all_in_tree(clean_markup_internal)
 
 def clean_ir(wikitext_ir):
     remove_sections(wikitext_ir)

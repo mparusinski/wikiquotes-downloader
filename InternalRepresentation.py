@@ -13,6 +13,16 @@ def json_elem_at(json_obj, address):
         json_content = json_content[token]
     return json_content
 
+class InvalidIRNodeOperation(Exception):
+
+    def __init__(self, description):
+        super(InvalidIRNodeOperation, self).__init__(description)
+        self.description = description
+
+    def __str__(self):
+        return repr(self.description)
+
+
 class IRNode(object):
     """Defines a node in the internal representation of a wikitext page"""
     def __init__(self, value, parent_node=None):
@@ -21,6 +31,8 @@ class IRNode(object):
         self.parent_node = parent_node
 
     def __eq__(self, other):
+        if other == None:
+            return False
         if self.value == other.value and \
             len(self.children) == len(other.children):
             for (left_child, right_child) in \
@@ -32,6 +44,9 @@ class IRNode(object):
             return False
 
     def add_child_node(self, ir_node):
+        if ir_node == None:
+            msg = "Attempting to add \"None\" to node childrens"
+            raise InvalidIRNodeOperation(msg)
         self.children.append(ir_node)
         ir_node.parent_node = self
 
@@ -48,10 +63,10 @@ class IRNode(object):
         string_list = self.to_string_list("")
         return "\n".join(string_list)
 
-    def do_for_all_ancestry(self, function):
+    def do_for_all_in_tree(self, function):
         for child in self.children:
-            function(child)
-            child.do_for_all_ancestry(function)
+            child.do_for_all_in_tree(function)
+        function(self)
 
     def find_children_using_regex(self, regex):
         # assuming regex is precompiled

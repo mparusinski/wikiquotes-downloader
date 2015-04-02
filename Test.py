@@ -46,6 +46,20 @@ class TestIRNode(unittest.TestCase):
         self.assertTrue(emptynode_1.children[0] == emptynode_2)
         self.assertTrue(emptynode_2.parent_node == emptynode_1)
 
+    def test_adding_invalid_node(self):
+        with self.assertRaises(InvalidIRNodeOperation):
+            dummynode = IRNode("")
+            dummynode.add_child_node(None)
+
+    def test_do_for_all_in_tree_simple(self):
+        def dummy_function(node):
+            node.value = "dummy"
+        emptynode = IRNode("")
+        emptynode.do_for_all_in_tree(dummy_function)
+        self.assertTrue(emptynode.value == "dummy")
+        self.assertTrue(len(emptynode.children) == 0)
+        self.assertTrue(emptynode.parent_node == None)
+
 
 class TestDetectLanguage(unittest.TestCase):
 
