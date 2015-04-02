@@ -20,6 +20,17 @@ class IRNode(object):
         self.children = []
         self.parent_node = parent_node
 
+    def __eq__(self, other):
+        if self.value == other.value and \
+            len(self.children) == len(other.children):
+            for (left_child, right_child) in \
+                zip(self.children, other.children):
+                if not left_child == right_child:
+                    return False
+            return True
+        else:
+            return False
+
     def add_child_node(self, wikitext_ir_node):
         self.children.append(wikitext_ir_node)
 
@@ -95,6 +106,9 @@ class InternalRepresentation(object):
         self.root_node = IRNode(title)
         self.__parse_text(wikitext_content)
 
+    def __eq__(self, other):
+        return self.root_node == other.root_node
+
     def __parse_text(self, text_to_parse):
         current_node = self.root_node
         current_depth = 0
@@ -139,6 +153,12 @@ class InternalRepresentation(object):
         string_none_formatted = "\n".join(string_list)
         return string_none_formatted.encode('UTF-8')
 
+
+def create_empty_ir():
+    return InternalRepresentation(("", ""))
+
+def create_ir_using(title, wikitext_content):
+    return InternalRepresentation((title, wikitext_content))
 
 class InvalidWikitext(Exception):
 
