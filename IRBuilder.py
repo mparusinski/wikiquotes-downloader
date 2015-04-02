@@ -26,12 +26,6 @@ class IRNode(object):
     def set_string(self, new_string):
         self.current_string = new_string
 
-    def get_parent(self):
-        return self.parent_node
-
-    def get_children(self):
-        return self.children
-
     def get_string(self):
         return self.current_string
 
@@ -88,7 +82,7 @@ class IRNode(object):
 
     def remove_child_node(self, node):
         # surgically remove node but not its children
-        nodes_children = node.get_children()
+        nodes_children = node.children
         for node_child in nodes_children:
             node_child.parentNode = self
         new_children = []

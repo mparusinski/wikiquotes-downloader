@@ -14,11 +14,11 @@ class IRNotReady(Exception):
 def create_json_from_ir(wikitext_ir):
     tab = "  "
     json_string = "{\n" + tab + "\"quotes\": ["
-    root_node = wikitext_ir.get_root()
+    root_node = wikitext_ir.root_node
     if root_node == None:
         raise IRNotReady("No root node in IR")
     author = root_node.get_string()
-    children = root_node.get_children()
+    children = root_node.children
     string_list = []
     for child in children:
         quote_text = child.get_string()

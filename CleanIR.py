@@ -25,7 +25,7 @@ def remove_noise_sections(wikitext_ir):
     root_node.remove_children_using_regex(noise_sections)
 
 def fix_translation(translated_node):
-    children = translated_node.get_children()
+    children = translated_node.children
     first_child = children[0]
     new_string = first_child.get_string()
     new_string = new_string[1:] # drop the first '*'
@@ -64,7 +64,7 @@ def remove_sections(wikitext_ir):
 
 def remove_second_depth(wikitext_ir):
     root_node = wikitext_ir.root_node
-    children = root_node.get_children()
+    children = root_node.children
     for child in children:
         child.remove_children()
 
