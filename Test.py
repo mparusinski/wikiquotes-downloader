@@ -29,6 +29,24 @@ def safer_system_call(call):
         else:
             print "Please type YES or NO!"
 
+class TestIRNode(unittest.TestCase):
+
+    def test_irnode_empty_value(self):
+        emptynode = IRNode("")
+        self.assertTrue(emptynode.value == "")
+        self.assertTrue(emptynode.parent_node == None)
+        self.assertTrue(len(emptynode.children) == 0)
+
+    def test_adding_child_node(self):
+        emptynode_1 = IRNode("")
+        emptynode_2 = IRNode("")
+        emptynode_1.add_child_node(emptynode_2)
+        self.assertTrue(len(emptynode_1.children) == 1)
+        self.assertTrue(len(emptynode_2.children) == 0)
+        self.assertTrue(emptynode_1.children[0] == emptynode_2)
+        self.assertTrue(emptynode_2.parent_node == emptynode_1)
+
+
 class TestDetectLanguage(unittest.TestCase):
 
     def test_find_english_sentence(self):

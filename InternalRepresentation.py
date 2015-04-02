@@ -31,8 +31,9 @@ class IRNode(object):
         else:
             return False
 
-    def add_child_node(self, wikitext_ir_node):
-        self.children.append(wikitext_ir_node)
+    def add_child_node(self, ir_node):
+        self.children.append(ir_node)
+        ir_node.parent_node = self
 
     def to_string_list(self, tabulation):
         """Build a list of strings"""
