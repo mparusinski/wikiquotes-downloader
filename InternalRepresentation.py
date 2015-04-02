@@ -84,6 +84,8 @@ class IRNode(object):
         return found_list
 
     def remove_children(self):
+        for child in self.children:
+            child.parent_node = None
         self.children = []
 
     def remove_children_using_regex(self, regex):

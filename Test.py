@@ -60,6 +60,39 @@ class TestIRNode(unittest.TestCase):
         self.assertTrue(len(emptynode.children) == 0)
         self.assertTrue(emptynode.parent_node == None)
 
+    def test_do_for_all_in_tree_complex(self):
+        def dummy_function(node):
+            node.value = "dummy"
+        emptynode = IRNode("")
+        emptynode.add_child_node(IRNode(""))
+        emptynode.do_for_all_in_tree(dummy_function)
+        self.assertTrue(emptynode.value == "dummy")
+        self.assertTrue(len(emptynode.children) == 1)
+        self.assertTrue(emptynode.children[0].value == "dummy")
+        self.assertTrue(len(emptynode.children[0].children) == 0)
+
+    def test_str_function_simple(self):
+        dummynode = IRNode("dummy")
+        self.assertTrue(dummynode.__str__() == "dummy")
+
+    def test_str_function_complex(self):
+        dummynode = IRNode("dummy")
+        dummynode.add_child_node(IRNode("dummy"))
+        self.assertTrue(dummynode.__str__() == "dummy\n  dummy")
+
+    def test_remove_children_single(self):
+        singlenode = IRNode("")
+        singlenode.remove_children()
+        self.assertTrue(len(singlenode.children) == 0)
+
+    def test_remove_children_single_child(self):
+        singlechildparent = IRNode("")
+        childnode = IRNode("")
+        singlechildparent.add_child_node(childnode)
+        singlechildparent.remove_children()
+        self.assertTrue(len(singlechildparent.children) == 0)
+        self.assertTrue(childnode.parent_node == None)
+
 
 class TestDetectLanguage(unittest.TestCase):
 
