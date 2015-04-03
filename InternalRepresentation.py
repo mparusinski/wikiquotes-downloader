@@ -94,6 +94,7 @@ class IRNode(object):
         children_list_copy = list(self.children) # copy, but not deepcopy
         for child in children_list_copy:
             if regex.match(child.value):
+                child.parent_node = None
                 self.children.remove(child)
 
     def remove_child(self, child):
@@ -105,9 +106,9 @@ class IRNode(object):
         children_list_copy = list(self.children)
         for child in children_list_copy:
             if regex.match(child.value):
-                self.remove_child_node(child)
+                self.remove_node(child)
 
-    def remove_child_node(self, node):
+    def remove_node(self, node):
         # surgically remove node but not its children
         nodes_children = node.children
         for node_child in nodes_children:

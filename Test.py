@@ -140,6 +140,105 @@ class TestIRNode(unittest.TestCase):
         self.assertTrue(child.parent_node == secondparent)
         self.assertFalse(child in firstparent.children)
 
+    def test_find_children_using_regex_no_childs(self):
+        nochildnode = IRNode("nochildnode")
+        foundchilds = nochildnode.find_children_using_regex(re.compile(r''))
+        self.assertTrue(len(foundchilds) == 0)
+
+    def test_find_children_using_regex_all_match(self):
+        parent = IRNode("parent")
+        num = 10
+        for i in xrange(num):
+            node = IRNode("child " + str(i))
+            parent.add_child_node(node)
+        all_regex = re.compile(r'child')
+        foundchilds = parent.find_children_using_regex(all_regex)
+        self.assertTrue(len(foundchilds) == num)
+
+    def test_find_children_using_regex_only_one_match(self):
+        parent = IRNode("parent")
+        matchchild = IRNode("match")
+        otherchild = IRNode("other")
+        parent.add_child_node(matchchild)
+        parent.add_child_node(otherchild)
+        match_regex = re.compile(r'match')
+        foundchilds = parent.find_children_using_regex(match_regex)
+        self.assertTrue(len(parent.children) == 2)
+        self.assertTrue(len(foundchilds) == 1)
+        self.assertTrue(foundchilds[0] == matchchild)
+
+    def test_find_children_using_function_no_childs(self):
+        def dummy_function(node):
+            return True
+        nochildnode = IRNode("nochildnode")
+        foundchilds = nochildnode.find_children_using_function(dummy_function)
+        self.assertTrue(len(foundchilds) == 0)
+
+    def test_find_children_using_function_all_match(self):
+        parent = IRNode("parent")
+        num = 10
+        for i in xrange(num):
+            node = IRNode("child " + str(i))
+            parent.add_child_node(node)
+        def dummy_function(node):
+            return True
+        foundchilds = parent.find_children_using_function(dummy_function)
+        self.assertTrue(len(foundchilds) == num)
+
+    def test_find_children_using_function_no_match(self):
+        parent = IRNode("parent")
+        num = 10
+        for i in xrange(num):
+            node = IRNode("child " + str(i))
+            parent.add_child_node(node)
+        def dummy_function(node):
+            return False
+        foundchilds = parent.find_children_using_function(dummy_function)
+        self.assertTrue(len(foundchilds) == 0)
+
+    def test_find_children_using_simple_function(self):
+        parent = IRNode("parent")
+        num = 10
+        for i in xrange(num):
+            node = IRNode(str(i))
+            parent.add_child_node(node)
+        def dummy_function(node):
+            return int(node.value) % 2 == 0
+        foundchilds = parent.find_children_using_function(dummy_function)
+        self.assertTrue(len(foundchilds) == (num / 2))
+
+    def test_remove_children_using_regex_no_childs(self):
+        nochildnode = IRNode("nochildnode")
+        nochildnode.remove_children_using_regex(re.compile(r''))
+        self.assertTrue(len(nochildnode.children) == 0)
+
+    def test_remove_children_using_regex_all_match(self):
+        parent = IRNode("parent")
+        num = 10
+        for i in xrange(num):
+            node = IRNode("child " + str(i))
+            parent.add_child_node(node)
+        all_regex = re.compile(r'child')
+        parent.remove_children_using_regex(all_regex)
+        self.assertTrue(len(parent.children) == 0)
+
+    def test_remove_children_using_regex_only_one_match(self):
+        parent = IRNode("parent")
+        matchchild = IRNode("match")
+        otherchild = IRNode("other")
+        parent.add_child_node(matchchild)
+        parent.add_child_node(otherchild)
+        match_regex = re.compile(r'match')
+        parent.remove_children_using_regex(match_regex)
+        self.assertTrue(len(parent.children) == 1)
+        self.assertTrue(parent.children[0] == otherchild)
+        self.assertTrue(matchchild.parent_node == None)
+
+    def test_remove_node_empty(self):
+        emptynode = IRNode("empty")
+        emptynode.remove_node(IRNode(""))
+        self.assertTrue(len(emptynode.children) == 0)
+
 
 class TestDetectLanguage(unittest.TestCase):
 
