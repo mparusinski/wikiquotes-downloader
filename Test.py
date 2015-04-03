@@ -51,6 +51,14 @@ class TestIRNode(unittest.TestCase):
             dummynode = IRNode("")
             dummynode.add_child_node(None)
 
+    def test_adding_not_parentless_node(self):
+        with self.assertRaises(InvalidIRNodeOperation):
+            parent1 = IRNode("parent1")
+            parent2 = IRNode("parent2")
+            child = IRNode("child")
+            parent1.add_child_node(child)
+            parent2.add_child_node(child)
+
     def test_do_for_all_in_tree_simple(self):
         def dummy_function(node):
             node.value = "dummy"
@@ -130,15 +138,6 @@ class TestIRNode(unittest.TestCase):
         self.assertTrue(len(aparent.children) == 1)
         self.assertTrue(aparent.children[0] == achild)
         self.assertTrue(achild.parent_node == aparent)
-
-    def test_child_changes_parent(self):
-        firstparent = IRNode("firstparent")
-        secondparent = IRNode("secondparent")
-        child = IRNode("child")
-        firstparent.add_child_node(child)
-        secondparent.add_child_node(child)
-        self.assertTrue(child.parent_node == secondparent)
-        self.assertFalse(child in firstparent.children)
 
     def test_find_children_using_regex_no_childs(self):
         nochildnode = IRNode("nochildnode")
