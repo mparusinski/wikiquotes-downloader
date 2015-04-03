@@ -111,6 +111,35 @@ class TestIRNode(unittest.TestCase):
         self.assertFalse(achild in aparent.children)
         self.assertTrue(achild.parent_node == None)
 
+    def test_remove_child_with_grandparents(self):
+        aparent = IRNode("parent")
+        achild = IRNode("child")
+        agrandchild = IRNode("grandchild")
+        achild.add_child_node(agrandchild)
+        aparent.add_child_node(achild)
+        aparent.remove_child(achild)
+        self.assertTrue(agrandchild.parent_node == achild)
+        self.assertTrue(achild.parent_node == None)
+
+    def test_remove_child_nochild(self):
+        aparent = IRNode("parent")
+        achild = IRNode("child")
+        orphan = IRNode("orphan")
+        aparent.add_child_node(achild)
+        aparent.remove_child(orphan)
+        self.assertTrue(len(aparent.children) == 1)
+        self.assertTrue(aparent.children[0] == achild)
+        self.assertTrue(achild.parent_node == aparent)
+
+    def test_child_changes_parent(self):
+        firstparent = IRNode("firstparent")
+        secondparent = IRNode("secondparent")
+        child = IRNode("child")
+        firstparent.add_child_node(child)
+        secondparent.add_child_node(child)
+        self.assertTrue(child.parent_node == secondparent)
+        self.assertFalse(child in firstparent.children)
+
 
 class TestDetectLanguage(unittest.TestCase):
 

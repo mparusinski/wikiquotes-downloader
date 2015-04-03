@@ -47,6 +47,8 @@ class IRNode(object):
         if ir_node == None:
             msg = "Attempting to add \"None\" to node childrens"
             raise InvalidIRNodeOperation(msg)
+        if not (ir_node.parent_node == None or ir_node.parent_node == self):
+            ir_node.parent_node.remove_child(ir_node)
         self.children.append(ir_node)
         ir_node.parent_node = self
 
