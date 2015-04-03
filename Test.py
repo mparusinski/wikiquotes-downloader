@@ -239,6 +239,27 @@ class TestIRNode(unittest.TestCase):
         emptynode.remove_node(IRNode(""))
         self.assertTrue(len(emptynode.children) == 0)
 
+    def test_remove_node_one_childless_child(self):
+        parent = IRNode("parent")
+        child = IRNode("child")
+        parent.add_child_node(child)
+        parent.remove_node(child)
+        self.assertTrue(len(parent.children) == 0)
+        self.assertTrue(child.parent_node == None)
+
+    def test_remove_node_childbearingchild_child(self):
+        parent = IRNode("parent")
+        child = IRNode("child")
+        grandchild = IRNode("grandchild")
+        parent.add_child_node(child)
+        child.add_child_node(grandchild)
+        parent.remove_node(child)
+        self.assertTrue(len(parent.children) == 1)
+        self.assertTrue(parent.children[0] == grandchild)
+        self.assertTrue(len(child.children) == 0)
+        self.assertTrue(child.parent_node == None)
+        self.assertTrue(grandchild.parent_node == parent)
+
 
 class TestDetectLanguage(unittest.TestCase):
 

@@ -110,13 +110,15 @@ class IRNode(object):
 
     def remove_node(self, node):
         # surgically remove node but not its children
-        nodes_children = node.children
-        for node_child in nodes_children:
-            node_child.parentNode = self
         new_children = []
         for child in self.children:
             if child == node:
-                new_children = new_children + nodes_children
+                child.parent_node = None
+                grandchildren = child.children
+                for grandchild in grandchildren:
+                    grandchild.parent_node = self
+                new_children = new_children + grandchildren
+                child.children = []
             else:
                 new_children.append(child)
         self.children = new_children
