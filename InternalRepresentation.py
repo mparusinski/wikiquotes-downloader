@@ -104,24 +104,40 @@ class IRNode(object):
 
     def remove_nodes_using_regex(self, regex):
         children_list_copy = list(self.children)
+        children_stack = list(children_list_copy)
+        final_children_list = []
         for child in children_list_copy:
+            to_remove = 1
+            childrens_to_add = [child]
             if regex.match(child.value):
-                self.remove_node(child)
+                to_remove = len(child.children)
+                new_children = self.__remove_node_helper(child, children_stack)
+                childrens_to_add = new_children[0:to_remove]
+            children_stack = children_stack[to_remove:]
+            final_children_list = final_children_list + childrens_to_add
+        self.children = final_children_list
+        self.__repoint_children_to_parent()
 
     def remove_node(self, node):
         # surgically remove node but not its children
+        self.children = self.__remove_node_helper(node, self.children)
+        self.__repoint_children_to_parent()
+
+    def __remove_node_helper(self, node, children_state):
         new_children = []
         for child in self.children:
             if child == node:
                 child.parent_node = None
                 grandchildren = child.children
-                for grandchild in grandchildren:
-                    grandchild.parent_node = self
                 new_children = new_children + grandchildren
                 child.children = []
             else:
                 new_children.append(child)
-        self.children = new_children
+        return new_children
+
+    def __repoint_children_to_parent(self):
+        for child in self.children:
+            child.parent_node = self
 
 
 class InternalRepresentation(object):

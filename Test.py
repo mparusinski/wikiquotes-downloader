@@ -260,6 +260,63 @@ class TestIRNode(unittest.TestCase):
         self.assertTrue(child.parent_node == None)
         self.assertTrue(grandchild.parent_node == parent)
 
+    def test_remove_node_multiple_descendants(self):
+        parent = IRNode("parent")
+        child1 = IRNode("child1")
+        child2 = IRNode("child2")
+        grandchild11 = IRNode("grandchild11")
+        grandchild12 = IRNode("grandchild12")
+        grandchild21 = IRNode("grandchild21")
+        grandchild22 = IRNode("grandchild22")
+        parent.add_child_node(child1)
+        parent.add_child_node(child2)
+        child1.add_child_node(grandchild11)
+        child1.add_child_node(grandchild12)
+        child2.add_child_node(grandchild21)
+        child2.add_child_node(grandchild22)
+        parent.remove_node(child2)
+        self.assertTrue(len(parent.children) == 3)
+        self.assertTrue(child1.parent_node == parent)
+        self.assertTrue(grandchild21.parent_node == parent)
+        self.assertTrue(grandchild22 in parent.children)
+        self.assertTrue(len(child1.children) == 2)
+        parent.remove_node(child1)
+        self.assertTrue(len(parent.children) == 4)
+        self.assertTrue(child1.parent_node == None)
+        self.assertTrue(grandchild21.parent_node == parent)
+        self.assertTrue(grandchild22 in parent.children)
+        self.assertTrue(len(child1.children) == 0)
+
+    def test_remove_nodes_using_regex_no_childs(self):
+        singlenode = IRNode("singlenode")
+        singlenode.remove_nodes_using_regex(re.compile(r''))
+        self.assertTrue(len(singlenode.children) == 0)
+
+    def test_remove_nodes_using_regex_all_match(self):
+        parent = IRNode("parent")
+        child1 = IRNode("child1")
+        child2 = IRNode("child2")
+        parent.add_child_node(child1)
+        parent.add_child_node(child2)
+        parent.remove_nodes_using_regex(re.compile(r''))
+        self.assertTrue(len(parent.children) == 0)
+        self.assertTrue(child1.parent_node == None)
+        self.assertTrue(child2.parent_node == None)
+
+    def test_remove_nodes_using_regex_one_match(self):
+        parent = IRNode("parent")
+        child1 = IRNode("child1")
+        child2 = IRNode("child2")
+        parent.add_child_node(child1)
+        parent.add_child_node(child2)
+        child1.add_child_node(IRNode(""))
+        child2.add_child_node(IRNode(""))
+        parent.remove_nodes_using_regex(re.compile(r'child2'))
+        self.assertTrue(len(parent.children) == 2)
+        self.assertTrue(parent.children[0] == child1)
+        self.assertFalse(parent.children[1] == child2)
+        self.assertTrue(child2.parent_node == None)
+
 
 class TestDetectLanguage(unittest.TestCase):
 
