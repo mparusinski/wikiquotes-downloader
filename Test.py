@@ -13,6 +13,21 @@ from CleanIR import *
 from DetectLanguage import *
 
 REBUILD_BASELINES = False
+NETWORKING = True
+try:
+    wikiquote_url = "http://en.wikiquote.org"
+    curler = pycurl.Curl()
+    buffer_string = StringIO()
+    curler.setopt(curler.URL, wikiquote_url)
+    curler.setopt(curler.WRITEDATA, buffer_string)
+    curler.perform()
+    curler.close()
+except pycurl.error:
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    print "!!!! ERROR: Unable to get Curl to connect wikiquote main page. !!!!"
+    print "!!!! A connection to wikiquote is required to run the tests    !!!!"
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    NETWORKING = False
 
 def safer_system_call(call):
     print "---------------------------------------------------------------------"
@@ -497,6 +512,8 @@ class WikitextExtractorTest(unittest.TestCase):
                 wikitextbaseline = readhandle.read()
                 self.assertTrue(wikitext_content.encode('UTF-8') == wikitextbaseline)
 
+    @unittest.skipIf(not NETWORKING,
+                     "not able to establish a connection to wikiquote.org")
     def test_other_wikitext_build(self):
         wiki_retriever = WikiquotesRetriever()
         wiki_retriever.setup_networking()
@@ -519,6 +536,8 @@ class WikiquotesRetrieverBaselines(BaselineBuilder):
 
 class WikiquotesRetrieverTest(unittest.TestCase):
 
+    @unittest.skipIf(not NETWORKING,
+                     "not able to establish a connection to wikiquote.org")
     def test_downloading_various(self):
         wiki_retriever = WikiquotesRetriever()
         wiki_retriever.setup_networking()
@@ -526,6 +545,8 @@ class WikiquotesRetrieverTest(unittest.TestCase):
         wiki_retriever.download_quote("Baruch Spinoza")
         wiki_retriever.close_networking()
 
+    @unittest.skipIf(not NETWORKING,
+                     "not able to establish a connection to wikiquote.org")
     def test_correct_json_downloaded(self):
         wiki_retriever = WikiquotesRetriever()
         wiki_retriever.setup_networking()
@@ -535,6 +556,8 @@ class WikiquotesRetrieverTest(unittest.TestCase):
             external_json_content = filehandle.read()
         self.assertTrue(external_json_content == online_json_content)
 
+    @unittest.skipIf(not NETWORKING,
+                     "not able to establish a connection to wikiquote.org")
     def test_not_hardcoded_json_downloaded(self):
         wiki_retriever = WikiquotesRetriever()
         wiki_retriever.setup_networking()
@@ -544,6 +567,8 @@ class WikiquotesRetrieverTest(unittest.TestCase):
             external_json_content = filehandle.read()
         self.assertTrue(not external_json_content == online_json_content)
 
+    @unittest.skipIf(not NETWORKING,
+                     "not able to establish a connection to wikiquote.org")
     def test_non_fn_title(self):
         try:
             wiki_retriever = WikiquotesRetriever()
@@ -553,6 +578,8 @@ class WikiquotesRetrieverTest(unittest.TestCase):
         except:
             self.fail("No exception should be thrown")
 
+    @unittest.skipIf(not NETWORKING,
+                     "not able to establish a connection to wikiquote.org")
     def test_invalid_title(self):
         with self.assertRaises(InvalidTitleException):
             wiki_retriever = WikiquotesRetriever()
@@ -570,22 +597,13 @@ def rebuild_baselines():
 
 def main():
     wikiquote_url = "http://en.wikiquote.org"
-    try:
-        curler = pycurl.Curl()
-        buffer_string = StringIO()
-        curler.setopt(curler.URL, wikiquote_url)
-        curler.setopt(curler.WRITEDATA, buffer_string)
-        curler.perform()
-        curler.close()
-        if REBUILD_BASELINES:
+    if REBUILD_BASELINES:
+        if NETWORKING:
             rebuild_baselines()
         else:
-            unittest.main()
-    except pycurl.error:
-        print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        print "!!!! ERROR: Unable to get Curl to connect wikiquote main page. !!!!"
-        print "!!!! A connection to wikiquote is required to run the tests    !!!!"
-        print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
+            print "An connection to wikiquote.org is required to rebuild baselines"
+    else:
+        unittest.main()
+        
 if __name__ == "__main__":
     main()
