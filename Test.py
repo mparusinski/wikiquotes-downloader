@@ -23,10 +23,6 @@ try:
     curler.perform()
     curler.close()
 except pycurl.error:
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    print "!!!! ERROR: Unable to get Curl to connect wikiquote main page. !!!!"
-    print "!!!! A connection to wikiquote is required to run the tests    !!!!"
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     NETWORKING = False
 
 def safer_system_call(call):
@@ -589,10 +585,10 @@ class WikiquotesRetrieverTest(unittest.TestCase):
 
 
 def rebuild_baselines():
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    print "!!!! WARNING: Rebuilding baselines instead of running tests        !!!!"
-    print "!!!! Execute at your own risk                                      !!!!"
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    print "!!!! WARNING: Rebuilding baselines instead of running tests      !!!!"
+    print "!!!! Execute at your own risk                                    !!!!"
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     run_baselines_builders()
 
 def main():
@@ -601,8 +597,16 @@ def main():
         if NETWORKING:
             rebuild_baselines()
         else:
-            print "An connection to wikiquote.org is required to rebuild baselines"
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            print "!!!! ERROR: No connection to wikiquote main page                 !!!!"
+            print "!!!! (Re)building baselines requires a working connection        !!!!"
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     else:
+        if not NETWORKING:
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            print "!!!! WARNING: Unable to get Curl to connect wikiquote main page. !!!!"
+            print "!!!! A connection to wikiquote is required to run some tests     !!!!"
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         unittest.main()
         
 if __name__ == "__main__":
