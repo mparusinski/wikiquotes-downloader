@@ -40,22 +40,74 @@ def safer_system_call(call):
         else:
             print "Please type YES or NO!"
 
+class TestCleanIR(unittest.TestCase):
+
+    section_title = "== Section Title =="
+
+    def build_simple_irinstance(self, value):
+        title = "root"
+        wikitext_content = self.section_title + "\n"
+        wikitext_content = wikitext_content + "* " + value + "\n"
+        irinstance = InternalRepresentation((title, wikitext_content))
+        return irinstance
+
+    def test_remove_html(self):
+        test_irinstance = self.build_simple_irinstance("<b>Bold text</b>")
+        remove_html(test_irinstance)
+        root_node = test_irinstance.root_node
+        self.assertTrue(root_node.value == "root")
+        self.assertTrue(len(root_node.children) == 1)
+        section_node = root_node.children[0]
+        self.assertTrue(section_node.value == self.section_title)
+        self.assertTrue(len(section_node.children) == 1)
+        content_node = section_node.children[0]
+        self.assertTrue(content_node.value == "* Bold text")
+        self.assertTrue(len(content_node.children) == 0)
+
+    def test_fix_internal_quotes(self):
+        test_irinstance = self.build_simple_irinstance("\"Text quoted\"")
+        fix_internal_quotes(test_irinstance)
+        root_node = test_irinstance.root_node
+        self.assertTrue(root_node.value == "root")
+        self.assertTrue(len(root_node.children) == 1)
+        section_node = root_node.children[0]
+        self.assertTrue(section_node.value == self.section_title)
+        self.assertTrue(len(section_node.children) == 1)
+        content_node = section_node.children[0]
+        self.assertTrue(content_node.value == "* \\\"Text quoted\\\"")
+        self.assertTrue(len(content_node.children) == 0)
+
+    def test_remove_quote_delimiters(self):
+        test_irinstance = self.build_simple_irinstance("Text with end quotes'''")
+        remove_quote_delimiters(test_irinstance)
+        root_node = test_irinstance.root_node
+        self.assertTrue(root_node.value == "root")
+        self.assertTrue(len(root_node.children) == 1)
+        section_node = root_node.children[0]
+        self.assertTrue(section_node.value == self.section_title)
+        self.assertTrue(len(section_node.children) == 1)
+        content_node = section_node.children[0]
+        self.assertTrue(content_node.value == "* Text with end quotes")
+        self.assertTrue(len(content_node.children) == 0)
+
 class TestIRNode(unittest.TestCase):
+
+    def check_ir_node(self, node, node_value, node_parent, node_num_children):
+        self.assertTrue(node.value == node_value)
+        self.assertTrue(node.parent_node == node_parent)
+        self.assertTrue(len(node.children) == node_num_children)
 
     def test_irnode_empty_value(self):
         emptynode = IRNode("")
-        self.assertTrue(emptynode.value == "")
-        self.assertTrue(emptynode.parent_node == None)
-        self.assertTrue(len(emptynode.children) == 0)
+        self.check_ir_node(emptynode, "", None, 0)
 
     def test_adding_child_node(self):
         emptynode_1 = IRNode("")
         emptynode_2 = IRNode("")
         emptynode_1.add_child_node(emptynode_2)
-        self.assertTrue(len(emptynode_1.children) == 1)
-        self.assertTrue(len(emptynode_2.children) == 0)
+        self.check_ir_node(emptynode_1, "", None, 1)
+        self.check_ir_node(emptynode_2, "", emptynode_1, 0)
         self.assertTrue(emptynode_1.children[0] == emptynode_2)
-        self.assertTrue(emptynode_2.parent_node == emptynode_1)
 
     def test_adding_invalid_node(self):
         with self.assertRaises(InvalidIRNodeOperation):
@@ -75,9 +127,7 @@ class TestIRNode(unittest.TestCase):
             node.value = "dummy"
         emptynode = IRNode("")
         emptynode.do_for_all_in_tree(dummy_function)
-        self.assertTrue(emptynode.value == "dummy")
-        self.assertTrue(len(emptynode.children) == 0)
-        self.assertTrue(emptynode.parent_node == None)
+        self.check_ir_node(emptynode, "dummy", None, 0)
 
     def test_do_for_all_in_tree_complex(self):
         def dummy_function(node):
@@ -85,10 +135,8 @@ class TestIRNode(unittest.TestCase):
         emptynode = IRNode("")
         emptynode.add_child_node(IRNode(""))
         emptynode.do_for_all_in_tree(dummy_function)
-        self.assertTrue(emptynode.value == "dummy")
-        self.assertTrue(len(emptynode.children) == 1)
-        self.assertTrue(emptynode.children[0].value == "dummy")
-        self.assertTrue(len(emptynode.children[0].children) == 0)
+        self.check_ir_node(emptynode, "dummy", None, 1)
+        self.check_ir_node(emptynode.children[0], "dummy", emptynode, 0)
 
     def test_str_function_simple(self):
         dummynode = IRNode("dummy")
@@ -102,21 +150,21 @@ class TestIRNode(unittest.TestCase):
     def test_remove_children_single(self):
         singlenode = IRNode("")
         singlenode.remove_children()
-        self.assertTrue(len(singlenode.children) == 0)
+        self.check_ir_node(singlenode, "", None, 0)
 
     def test_remove_children_single_child(self):
         singlechildparent = IRNode("")
         childnode = IRNode("")
         singlechildparent.add_child_node(childnode)
         singlechildparent.remove_children()
-        self.assertTrue(len(singlechildparent.children) == 0)
-        self.assertTrue(childnode.parent_node == None)
+        self.check_ir_node(singlechildparent, "", None, 0)
+        self.check_ir_node(childnode, "", None, 0)
 
     def test_remove_children_nasty_case(self):
         anode = IRNode("")
         anode.add_child_node(anode)
         anode.remove_children()
-        self.assertTrue(len(anode.children) == 0)
+        self.check_ir_node(anode, "", None, 0)
 
     def test_remove_child_no_children(self):
         anode = IRNode("")
@@ -137,8 +185,9 @@ class TestIRNode(unittest.TestCase):
         achild.add_child_node(agrandchild)
         aparent.add_child_node(achild)
         aparent.remove_child(achild)
-        self.assertTrue(agrandchild.parent_node == achild)
-        self.assertTrue(achild.parent_node == None)
+        self.check_ir_node(agrandchild, "grandchild", achild, 0)
+        self.check_ir_node(achild, "child", None, 1)
+        self.check_ir_node(aparent, "parent", None, 0)
 
     def test_remove_child_nochild(self):
         aparent = IRNode("parent")
@@ -146,13 +195,15 @@ class TestIRNode(unittest.TestCase):
         orphan = IRNode("orphan")
         aparent.add_child_node(achild)
         aparent.remove_child(orphan)
-        self.assertTrue(len(aparent.children) == 1)
+        self.check_ir_node(aparent, "parent", None, 1)
         self.assertTrue(aparent.children[0] == achild)
-        self.assertTrue(achild.parent_node == aparent)
+        self.check_ir_node(achild, "child", aparent, 0)
+        self.check_ir_node(orphan, "orphan", None, 0)
 
     def test_find_children_using_regex_no_childs(self):
         nochildnode = IRNode("nochildnode")
         foundchilds = nochildnode.find_children_using_regex(re.compile(r''))
+        self.check_ir_node(nochildnode, "nochildnode", None, 0)
         self.assertTrue(len(foundchilds) == 0)
 
     def test_find_children_using_regex_all_match(self):
@@ -220,7 +271,7 @@ class TestIRNode(unittest.TestCase):
     def test_remove_children_using_regex_no_childs(self):
         nochildnode = IRNode("nochildnode")
         nochildnode.remove_children_using_regex(re.compile(r''))
-        self.assertTrue(len(nochildnode.children) == 0)
+        self.check_ir_node(nochildnode, "nochildnode", None, 0)
 
     def test_remove_children_using_regex_all_match(self):
         parent = IRNode("parent")
@@ -230,7 +281,7 @@ class TestIRNode(unittest.TestCase):
             parent.add_child_node(node)
         all_regex = re.compile(r'child')
         parent.remove_children_using_regex(all_regex)
-        self.assertTrue(len(parent.children) == 0)
+        self.check_ir_node(parent, "parent", None, 0)
 
     def test_remove_children_using_regex_only_one_match(self):
         parent = IRNode("parent")
@@ -240,22 +291,23 @@ class TestIRNode(unittest.TestCase):
         parent.add_child_node(otherchild)
         match_regex = re.compile(r'match')
         parent.remove_children_using_regex(match_regex)
-        self.assertTrue(len(parent.children) == 1)
+        self.check_ir_node(parent, "parent", None, 1)
+        self.check_ir_node(matchchild, "match", None, 0)
+        self.check_ir_node(otherchild, "other", parent, 0)
         self.assertTrue(parent.children[0] == otherchild)
-        self.assertTrue(matchchild.parent_node == None)
 
     def test_remove_node_empty(self):
         emptynode = IRNode("empty")
         emptynode.remove_node(IRNode(""))
-        self.assertTrue(len(emptynode.children) == 0)
+        self.check_ir_node(emptynode, "empty", None, 0)
 
     def test_remove_node_one_childless_child(self):
         parent = IRNode("parent")
         child = IRNode("child")
         parent.add_child_node(child)
         parent.remove_node(child)
-        self.assertTrue(len(parent.children) == 0)
-        self.assertTrue(child.parent_node == None)
+        self.check_ir_node(parent, "parent", None, 0)
+        self.check_ir_node(child, "child", None, 0)
 
     def test_remove_node_childbearingchild_child(self):
         parent = IRNode("parent")
@@ -264,11 +316,10 @@ class TestIRNode(unittest.TestCase):
         parent.add_child_node(child)
         child.add_child_node(grandchild)
         parent.remove_node(child)
-        self.assertTrue(len(parent.children) == 1)
+        self.check_ir_node(parent, "parent", None, 1)
         self.assertTrue(parent.children[0] == grandchild)
-        self.assertTrue(len(child.children) == 0)
-        self.assertTrue(child.parent_node == None)
-        self.assertTrue(grandchild.parent_node == parent)
+        self.check_ir_node(child, "child", None, 0)
+        self.check_ir_node(grandchild, "grandchild", parent, 0)
 
     def test_remove_node_multiple_descendants(self):
         parent = IRNode("parent")
@@ -285,22 +336,34 @@ class TestIRNode(unittest.TestCase):
         child2.add_child_node(grandchild21)
         child2.add_child_node(grandchild22)
         parent.remove_node(child2)
-        self.assertTrue(len(parent.children) == 3)
-        self.assertTrue(child1.parent_node == parent)
-        self.assertTrue(grandchild21.parent_node == parent)
+        self.check_ir_node(parent, "parent", None, 3)
+        self.check_ir_node(child1, "child1", parent, 2)
+        self.check_ir_node(child2, "child2", None, 0)
+        self.check_ir_node(grandchild11, "grandchild11", child1, 0)
+        self.check_ir_node(grandchild12, "grandchild12", child1, 0)
+        self.check_ir_node(grandchild21, "grandchild21", parent, 0)
+        self.check_ir_node(grandchild22, "grandchild22", parent, 0)
+        self.assertTrue(not grandchild11 in parent.children)
+        self.assertTrue(not grandchild12 in parent.children)
+        self.assertTrue(grandchild21 in parent.children)
         self.assertTrue(grandchild22 in parent.children)
-        self.assertTrue(len(child1.children) == 2)
         parent.remove_node(child1)
-        self.assertTrue(len(parent.children) == 4)
-        self.assertTrue(child1.parent_node == None)
-        self.assertTrue(grandchild21.parent_node == parent)
+        self.check_ir_node(parent, "parent", None, 4)
+        self.check_ir_node(child1, "child1", None, 0)
+        self.check_ir_node(child2, "child2", None, 0)
+        self.check_ir_node(grandchild11, "grandchild11", parent, 0)
+        self.check_ir_node(grandchild12, "grandchild12", parent, 0)
+        self.check_ir_node(grandchild21, "grandchild21", parent, 0)
+        self.check_ir_node(grandchild22, "grandchild22", parent, 0)
+        self.assertTrue(grandchild11 in parent.children)
+        self.assertTrue(grandchild12 in parent.children)
+        self.assertTrue(grandchild21 in parent.children)
         self.assertTrue(grandchild22 in parent.children)
-        self.assertTrue(len(child1.children) == 0)
 
     def test_remove_nodes_using_regex_no_childs(self):
         singlenode = IRNode("singlenode")
         singlenode.remove_nodes_using_regex(re.compile(r''))
-        self.assertTrue(len(singlenode.children) == 0)
+        self.check_ir_node(singlenode, "singlenode", None, 0)
 
     def test_remove_nodes_using_regex_all_match(self):
         parent = IRNode("parent")
@@ -309,9 +372,9 @@ class TestIRNode(unittest.TestCase):
         parent.add_child_node(child1)
         parent.add_child_node(child2)
         parent.remove_nodes_using_regex(re.compile(r''))
-        self.assertTrue(len(parent.children) == 0)
-        self.assertTrue(child1.parent_node == None)
-        self.assertTrue(child2.parent_node == None)
+        self.check_ir_node(parent, "parent", None, 0)
+        self.check_ir_node(child1, "child1", None, 0)
+        self.check_ir_node(child2, "child2", None, 0)
 
     def test_remove_nodes_using_regex_one_match(self):
         parent = IRNode("parent")
@@ -322,7 +385,7 @@ class TestIRNode(unittest.TestCase):
         child1.add_child_node(IRNode(""))
         child2.add_child_node(IRNode(""))
         parent.remove_nodes_using_regex(re.compile(r'child2'))
-        self.assertTrue(len(parent.children) == 2)
+        self.check_ir_node(parent, "parent", None, 2)
         self.assertTrue(parent.children[0] == child1)
         self.assertFalse(parent.children[1] == child2)
         self.assertTrue(child2.parent_node == None)
