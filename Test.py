@@ -328,6 +328,24 @@ class TestIRNode(unittest.TestCase):
         self.assertTrue(child2.parent_node == None)
 
 
+class TestInternalRepresentation(unittest.TestCase):
+
+    def test_dummy_case(self):
+        title = "Dummy Philosopher"
+        wikitext_content = "== Quotes ==\n" \
+            "* Once upon a time there was a sausage called Baldrick"
+        irinstance = InternalRepresentation((title, wikitext_content))
+        root_ir_node = irinstance.root_node
+        self.assertTrue(root_ir_node.value == "Dummy Philosopher")
+        self.assertTrue(len(root_ir_node.children) == 1)
+        childnode = root_ir_node.children[0]
+        self.assertTrue(childnode.value == "== Quotes ==")
+        self.assertTrue(len(childnode.children) == 1)
+        grandchild = childnode.children[0]
+        self.assertTrue(grandchild.value == "* Once upon a time there was a sausage called Baldrick")
+        self.assertTrue(len(grandchild.children) == 0)
+
+
 class TestDetectLanguage(unittest.TestCase):
 
     def test_find_english_sentence(self):
