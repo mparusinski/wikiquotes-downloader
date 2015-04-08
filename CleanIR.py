@@ -14,7 +14,7 @@ def remove_disputed(wikitext_ir):
     root_node.remove_children_using_regex(disputed_regex)
 
 def remove_quotes_about_x(wikitext_ir):
-    about_x_regex = re.compile(r'== Quotes about [a-zA-Z\s]+ ==')
+    about_x_regex = re.compile(r'== ((Quotes)|(Quotations)) ((about)|(regarding)) [a-zA-Z\s]+ ==')
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(about_x_regex)
 
@@ -36,7 +36,7 @@ def remove_translations(wikitext_ir):
     def detect_translation(node):
         return not language_detector.detect_language(node.value) == "English"
     root_node = wikitext_ir.root_node
-    quotes_regex = re.compile(r'(== Quotes ==)|(== Quotations ==)')
+    quotes_regex = re.compile(r'== ((Quotes)|(Quotations)) ==')
     quotes_subnodes = root_node.find_children_using_regex(quotes_regex)
     num_subnodes = len(quotes_subnodes)
     if num_subnodes > 1:
