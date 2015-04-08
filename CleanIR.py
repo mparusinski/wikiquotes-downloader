@@ -87,7 +87,7 @@ def fix_internal_quotes(wikitext_ir):
     root_node.do_for_all_in_tree(fix_quote_helper)
 
 def remove_html(wikitext_ir):
-    html_regex = re.compile(r'<[/]?[\w]+>')
+    html_regex = re.compile(r'<(([/]?)|(![-]+))[\s\w]*[-]*>')
     def remove_html_helper(node):
         node.value = html_regex.sub('', node.value)
     root_node = wikitext_ir.root_node
