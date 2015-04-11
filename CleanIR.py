@@ -20,7 +20,7 @@ def remove_quotes_about_x(wikitext_ir):
 
 def remove_noise_sections(wikitext_ir):
     """Remove sections that have nothing to do with quotes"""
-    noise_sections = re.compile(r'==(\s)*((See also)|(External links))(\s)*==')
+    noise_sections = re.compile(r'==(\s)*((See also)|(External links)|(Sources))(\s)*==')
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(noise_sections)
 
