@@ -5,13 +5,22 @@ import argparse
 from WikiquotesRetriever import WikiquotesRetriever, NetworkingException
 from InternalRepresentation import ir_from_json
 from CleanIR import remove_noise, remove_translations, clean_ir
-from IRToJson import create_json_from_ir
+from IRToJson import json_from_ir, combine_json_objects, pretty_format_json
 
 DESCRIPTION = "Download all quotes from a certain philosopher"
 
+class NoAuthorSpecified(Exception):
+
+    def __init__(self, description):
+        super(NoAuthorSpecified, self).__init__(description)
+        self.description = description
+
+    def __str__(self):
+        return repr(self.description)
+
 def main():
     parser = argparse.ArgumentParser(description=DESCRIPTION)
-    parser.add_argument('author', action="store", metavar='author', type=str, \
+    parser.add_argument('-a', '--author', action="store", metavar='author', type=str, \
         help='Name of the author you wish download quotes from')
     parser.add_argument('--raw', action="store_true", dest="raw", \
         help='Show internal representation obtained from wikiquotes with no parsing', \
@@ -19,12 +28,25 @@ def main():
     parser.add_argument('--from-json', action="store", metavar='json_file', type=str, \
         help='Use JSON file instead of wikiquote API')
     parser.add_argument('-o', '--output', action="store", metavar='output_file', type=str, \
-        help='Write the output to given file')
+        help='Write the quotes to specified file (overwrites)')
+    parser.add_argument('-i', '--input', action="store", metavar='input_file', type=str, \
+        help='Read author names from input file')
     args = parser.parse_args()
-    philosophers_name = args.author
+    philosophers_names = []
+    if args.author:
+        print args.author
+        philosophers_names.append(args.author)
+    elif args.input:
+        with open(args.input, "r") as fhandle:
+            for line in fhandle:
+                author = line.rstrip(" \n")
+                philosophers_names.append(author)
+    else:
+        raise NoAuthorSpecified("You must specified an author using either the --author option or the --input option")
+        print parser.print_help()
     wiki_retriever = WikiquotesRetriever()
     wiki_retriever.setup_networking()
-    json_content = ""
+    json_contents = []
     if args.from_json:
         try:
             json_file_path = args.from_json
@@ -35,27 +57,28 @@ def main():
             return
     else:
         try:
-            json_content = wiki_retriever.download_quote(philosophers_name)
+            for a_philosophers_name in philosophers_names:
+                json_contents.append(wiki_retriever.download_quote(a_philosophers_name))
             wiki_retriever.close_networking()
         except NetworkingException as e:
             print e
             return
-    irinstance = ir_from_json(json_content)
+    irinstances = map(ir_from_json, json_contents)
     final_output = ""
     if args.raw:
-        final_output = str(irinstance)
+        final_output = "\n".join(map(str, irinstances))
     else:
-        remove_noise(irinstance)
-        remove_translations(irinstance)
-        clean_ir(irinstance)
-        json_string = create_json_from_ir(irinstance)
-        final_output = str(json_string.encode('UTF-8'))
+        map(remove_noise, irinstances)
+        map(remove_translations, irinstances)
+        map(clean_ir, irinstances)
+        json_objects = map(json_from_ir, irinstances)
+        json_single_object = combine_json_objects(json_objects)
+        final_output = pretty_format_json(json_single_object)
     if args.output:
-        output_file_path = args.output
-        with open(output_file_path, "w") as fhandle:
+        with open(args.output, "w") as fhandle:
             fhandle.write(final_output)
     else:
-        print final_output 
+        print final_output
 
 
 if __name__ == '__main__':

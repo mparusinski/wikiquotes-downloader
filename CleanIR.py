@@ -80,6 +80,7 @@ def remove_quote_delimiters(wikitext_ir):
     root_node.do_for_all_in_tree(cleaning_function)
 
 def fix_internal_quotes(wikitext_ir):
+    # This was not necessary
     double_quote_regex = re.compile(r'(\")')
     def fix_quote_helper(node):
         node.value = double_quote_regex.sub('\\\"', node.value)
@@ -116,7 +117,6 @@ def clean_ir(wikitext_ir):
     remove_second_depth(wikitext_ir)
     remove_leading_stars(wikitext_ir)
     remove_quote_delimiters(wikitext_ir)
-    fix_internal_quotes(wikitext_ir)
     markup_cleaner(wikitext_ir)
     remove_html(wikitext_ir)
 

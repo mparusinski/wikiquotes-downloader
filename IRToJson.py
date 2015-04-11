@@ -1,4 +1,5 @@
 # coding=UTF-8
+import json
 from InternalRepresentation import InternalRepresentation
 from CleanIR import *
 
@@ -10,25 +11,29 @@ class IRNotReady(Exception):
     def __str__(self):
         return repr(self.detected_issue)
 
-
-def create_json_from_ir(wikitext_ir):
-    tab = "  "
-    json_string = "{\n" + tab + "\"quotes\": ["
+def json_from_ir(wikitext_ir):
+    json_obj = dict()
     root_node = wikitext_ir.root_node
     if root_node == None:
         raise IRNotReady("No root node in IR")
     author = root_node.value
     children = root_node.children
-    string_list = []
+    subobjects = []
     for child in children:
         quote_text = child.value
-        quote_string = tab + tab + "{\n" + tab + tab + tab + "\"quoteText\": \"" + quote_text + "\","
-        quote_string = quote_string + "\n" + tab + tab + tab + "\"philosopher\": \"" + author + "\"\n" + tab + tab + "}"
-        string_list.append(quote_string)
-    internal_string = ",\n".join(string_list)
-    json_string = json_string + internal_string + "\n" + tab + "]\n}\n"
-    return json_string
+        subobjects.append({"quoteText": quote_text, "philosopher": author})
+    json_obj["quotes"] = subobjects
+    return json_obj
 
+def combine_json_objects(json_objects):
+    total_quotes_list = []
+    for json_obj in json_objects:
+        quotes = json_obj["quotes"]
+        total_quotes_list = total_quotes_list + quotes
+    return {"quotes": total_quotes_list}
+
+def pretty_format_json(json_obj):
+    return json.dumps(json_obj, indent=4, sort_keys=True).decode('UTF-8')
 
 if __name__ == '__main__':
     pass
