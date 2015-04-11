@@ -7,7 +7,8 @@ from InternalRepresentation import ir_from_json
 from CleanIR import remove_noise, remove_translations, clean_ir
 from IRToJson import json_from_ir, combine_json_objects, pretty_format_json
 
-DESCRIPTION = "Download all quotes from a certain philosopher"
+VERSION = 0.8
+DESCRIPTION = "wikiquotes-downloader visits wikiquote pages and converts them into a json file\n"
 
 class NoAuthorSpecified(Exception):
 

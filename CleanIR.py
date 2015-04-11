@@ -4,23 +4,23 @@ from InternalRepresentation import InternalRepresentation, ir_from_json
 from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
-    misattributed_regex = re.compile('== Misattributed ==')
+    misattributed_regex = re.compile(r'==(\s)*Misattributed(\s)*==')
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(misattributed_regex)
 
 def remove_disputed(wikitext_ir):
-    disputed_regex = re.compile(r'== Disputed ==')
+    disputed_regex = re.compile(r'==(\s)*Disputed(\s)*==')
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(disputed_regex)
 
 def remove_quotes_about_x(wikitext_ir):
-    about_x_regex = re.compile(r'== ((Quotes)|(Quotations)) ((about)|(regarding)) [a-zA-Z\s]+ ==')
+    about_x_regex = re.compile(r'==(\s)*((Quotes)|(Quotations)) ((about)|(regarding)) [a-zA-Z\s]+(\s)*==')
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(about_x_regex)
 
 def remove_noise_sections(wikitext_ir):
     """Remove sections that have nothing to do with quotes"""
-    noise_sections = re.compile(r'== See also ==')
+    noise_sections = re.compile(r'==(\s)*((See also)|(External links))(\s)*==')
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(noise_sections)
 
@@ -36,7 +36,7 @@ def remove_translations(wikitext_ir):
     def detect_translation(node):
         return not language_detector.detect_language(node.value) == "English"
     root_node = wikitext_ir.root_node
-    quotes_regex = re.compile(r'== ((Quotes)|(Quotations)) ==')
+    quotes_regex = re.compile(r'==(\s)*((Quotes)|(Quotations))(\s)*==')
     quotes_subnodes = root_node.find_children_using_regex(quotes_regex)
     num_subnodes = len(quotes_subnodes)
     if num_subnodes > 1:
@@ -57,7 +57,7 @@ def remove_noise(wikitext_ir):
     remove_noise_sections(wikitext_ir)
 
 def remove_sections(wikitext_ir):
-    sections_regex = re.compile(r'== [a-zA-Z0-9\s]+ ==')
+    sections_regex = re.compile(r'==(\s)*[a-zA-Z0-9\s]+(\s)*==')
     root_node = wikitext_ir.root_node
     root_node.remove_nodes_using_regex(sections_regex)
 
