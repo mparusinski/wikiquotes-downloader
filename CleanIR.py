@@ -26,10 +26,14 @@ def remove_noise_sections(wikitext_ir):
 
 def fix_translation(translated_node):
     children = translated_node.children
-    first_child = children[0]
-     # drop the first '*'
-    translated_node.value = first_child.value[1:]
-    translated_node.remove_child(first_child)
+    if len(children) > 1:
+        first_child = children[0]
+         # drop the first '*'
+        translated_node.value = first_child.value[1:]
+        translated_node.remove_child(first_child)
+    else:
+        print "WARNING: No translations for line \"" + translated_node.value + "\""
+        translated_node.parent_node.remove_child(translated_node)
 
 def remove_translations(wikitext_ir):
     language_detector = LanguageDetector()

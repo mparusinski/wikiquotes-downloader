@@ -598,6 +598,17 @@ class WikitextExtractorTest(unittest.TestCase):
         wiki_retriever.close_networking()
         title, wikitext_content = wikitext_from_json(online_json_content)
 
+    def test_multiple_source_build(self):
+        wiki_retriever = WikiquotesRetriever()
+        wiki_retriever.setup_networking()
+        fn_json_content = wiki_retriever.download_quote("Friedrich Nietzsche")
+        jsm_json_content = wiki_retriever.download_quote("John Stuart Mill")
+        a_json_content = wiki_retriever.download_quote("Aristotle")
+        wiki_retriever.close_networking()
+        fn_title, fn_wikitext_content = wikitext_from_json(fn_json_content)
+        jsm_title, jsm_wikitext_content = wikitext_from_json(jsm_json_content)
+        a_title, a_wikitext_content = wikitext_from_json(a_json_content)
+
     def test_empty_wikitext(self):
         with self.assertRaises(InvalidWikitext):
             title, wikitext = wikitext_from_json("")
