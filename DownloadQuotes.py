@@ -18,6 +18,8 @@ def main():
         default=False)
     parser.add_argument('--from-json', action="store", metavar='json_file', type=str, \
         help='Use JSON file instead of wikiquote API')
+    parser.add_argument('-o', '--output', action="store", metavar='output_file', type=str, \
+        help='Write the output to given file')
     args = parser.parse_args()
     philosophers_name = args.author
     wiki_retriever = WikiquotesRetriever()
@@ -39,14 +41,21 @@ def main():
             print e
             return
     irinstance = ir_from_json(json_content)
+    final_output = ""
     if args.raw:
-        print irinstance
+        final_output = str(irinstance)
     else:
         remove_noise(irinstance)
         remove_translations(irinstance)
         clean_ir(irinstance)
         json_string = create_json_from_ir(irinstance)
-        print json_string.encode('UTF-8')
+        final_output = str(json_string.encode('UTF-8'))
+    if args.output:
+        output_file_path = args.output
+        with open(output_file_path, "w") as fhandle:
+            fhandle.write(final_output)
+    else:
+        print final_output 
 
 
 if __name__ == '__main__':
