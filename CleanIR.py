@@ -4,7 +4,7 @@ from InternalRepresentation import InternalRepresentation, ir_from_json
 from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
-    misattributed_regex = re.compile(r'==(\s)*Misattributed(\s)*==')
+    misattributed_regex = re.compile(r'==(\s)*((Misattributed)|(Attributed))(\s)*==')
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(misattributed_regex)
 
