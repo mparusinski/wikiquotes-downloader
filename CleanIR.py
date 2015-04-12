@@ -26,7 +26,7 @@ def remove_noise_sections(wikitext_ir):
 
 def fix_translation(translated_node):
     children = translated_node.children
-    if len(children) > 1:
+    if len(children) >= 1:
         first_child = children[0]
          # drop the first '*'
         translated_node.value = first_child.value[1:]
