@@ -34,8 +34,13 @@ def main():
         help='Write the quotes to specified file (overwrites)')
     parser.add_argument('-i', '--input', action="store", metavar='input_file', type=str, \
         help='Read author names from input file')
+    parser.add_argument('-v', '--version', action="store_true", dest="version", \
+        help='Show version number', default=False)
     args = parser.parse_args()
     philosophers_names = []
+    if args.version:
+        print str(VERSION)
+        return
     if args.author:
         print args.author
         philosophers_names.append(args.author)
