@@ -41,7 +41,7 @@ class LanguageDetector(object):
 
     def __build_regex_from_word(self, word):
         regex_string = r"(^" + word + ")|(\s" + word + r"\s)|(" + word + "$)"
-        return re.compile(regex_string)
+        return re.compile(regex_string, re.IGNORECASE)
 
     def detect_language(self, string):
         language_score_array = dict()
