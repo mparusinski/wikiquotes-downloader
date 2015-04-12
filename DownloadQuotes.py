@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 # coding=UTF-8
 import sys
 import argparse
@@ -9,6 +10,7 @@ from IRToJson import json_from_ir, combine_json_objects, pretty_format_json
 
 VERSION = 0.8
 DESCRIPTION = "wikiquotes-downloader visits wikiquote pages and converts them into a json file\n"
+PROGRAMNAME = "wikiquotes-downloader"
 
 class NoAuthorSpecified(Exception):
 
@@ -20,7 +22,7 @@ class NoAuthorSpecified(Exception):
         return repr(self.description)
 
 def main():
-    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    parser = argparse.ArgumentParser(prog=PROGRAMNAME, description=DESCRIPTION)
     parser.add_argument('-a', '--author', action="store", metavar='author', type=str, \
         help='Name of the author you wish download quotes from')
     parser.add_argument('--raw', action="store_true", dest="raw", \
