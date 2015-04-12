@@ -1,6 +1,6 @@
 # coding=UTF-8
 import re
-from InternalRepresentation import InternalRepresentation, ir_from_json
+from InternalRepresentation import InternalRepresentation, ir_from_json, InvalidWikitext
 from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
@@ -40,13 +40,14 @@ def remove_translations(wikitext_ir):
     def detect_translation(node):
         return not language_detector.detect_language(node.value) == "English"
     root_node = wikitext_ir.root_node
-    quotes_regex = re.compile(r'==(\s)*((Quotes)|(Quotations))(\s)*==')
+    quotes_regex = re.compile(r'==(\s)*((Quotes)|(Quotations)|(Sourced))(\s)*==')
     quotes_subnodes = root_node.find_children_using_regex(quotes_regex)
     num_subnodes = len(quotes_subnodes)
+    title = root_node.value
     if num_subnodes > 1:
-        raise InvalidWikitext("More than one \"QUOTES\" section is not supported")
+        raise InvalidWikitext("Page " + title + " more than one \"QUOTES\" section which is not supported")
     elif num_subnodes == 0:
-        raise InvalidWikitext("No \"QUOTES\" section found. Please contact developer")
+        raise InvalidWikitext("No \"QUOTES\" section found in page " + title + ". Please contact developer")
     else:
         quotes_node = quotes_subnodes[0]
         quotes_node.value

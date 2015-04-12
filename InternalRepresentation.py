@@ -153,7 +153,7 @@ class InternalRepresentation(object):
         return self.root_node == other.root_node
 
     def __parse_text(self, text_to_parse):
-        valid_line_regex = re.compile(r'^((==)|([*]+))([\s\w\'])')
+        valid_line_regex = re.compile(r'^((==)|([*]+))([\s\w\[\'])')
         current_node = self.root_node
         current_depth = 0
         for line in text_to_parse.splitlines():

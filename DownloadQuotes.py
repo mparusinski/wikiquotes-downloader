@@ -4,7 +4,7 @@ import sys
 import argparse
 
 from WikiquotesRetriever import WikiquotesRetriever, NetworkingException
-from InternalRepresentation import ir_from_json
+from InternalRepresentation import ir_from_json, InvalidWikitext
 from CleanIR import remove_noise, remove_translations, clean_ir
 from IRToJson import json_from_ir, combine_json_objects, pretty_format_json
 
@@ -42,7 +42,6 @@ def main():
         print str(VERSION)
         return
     if args.author:
-        print args.author
         philosophers_names.append(args.author)
     elif args.input:
         with open(args.input, "r") as fhandle:
@@ -77,7 +76,11 @@ def main():
         final_output = "\n".join(map(str, irinstances))
     else:
         map(remove_noise, irinstances)
-        map(remove_translations, irinstances)
+        try:
+            map(remove_translations, irinstances)
+        except InvalidWikitext as e:
+            print e
+            return
         map(clean_ir, irinstances)
         json_objects = map(json_from_ir, irinstances)
         json_single_object = combine_json_objects(json_objects)
