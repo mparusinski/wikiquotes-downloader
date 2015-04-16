@@ -40,7 +40,7 @@ def remove_translations(wikitext_ir):
     def detect_translation(node):
         return not language_detector.detect_language(node.value) == "English"
     root_node = wikitext_ir.root_node
-    quotes_regex = re.compile(r'==(\s)*((Quotes)|(Quotations)|(Sourced))(\s)*==')
+    quotes_regex = re.compile(r'==(\s)*((Quotes)|(Quotations)|(Sourced)|(Quoted))(\s)*==')
     quotes_subnodes = root_node.find_children_using_regex(quotes_regex)
     num_subnodes = len(quotes_subnodes)
     title = root_node.value
