@@ -20,7 +20,7 @@ def remove_quotes_about_x(wikitext_ir):
 
 def remove_noise_sections(wikitext_ir):
     """Remove sections that have nothing to do with quotes"""
-    noise_sections = re.compile(r'==(\s)*((See also)|(External links)|(Sources))(\s)*==')
+    noise_sections = re.compile(r'==(\s)*((See also)|(External links)|(Sources)|(Also see))(\s)*==', re.IGNORECASE)
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(noise_sections)
 
@@ -92,8 +92,15 @@ def fix_internal_quotes(wikitext_ir):
     root_node = wikitext_ir.root_node
     root_node.do_for_all_in_tree(fix_quote_helper)
 
+def replace_html_breaks(wikitext_ir):
+    breakline_regex = re.compile(r'((<br[\s]*>)|(<br[\s]*/>))')
+    def replace_html_helper(node):
+        node.value = breakline_regex.sub('\n', node.value)
+    root_node = wikitext_ir.root_node
+    root_node.do_for_all_in_tree(replace_html_helper)
+
 def remove_html(wikitext_ir):
-    html_regex = re.compile(r'<(([/]?)|(![-]+))[\s\w]*[-]*>')
+    html_regex = re.compile(r'<(([/]?)|(![-]+))[\s\w]*([/])?[-]*>')
     def remove_html_helper(node):
         node.value = html_regex.sub('', node.value)
     root_node = wikitext_ir.root_node
@@ -123,6 +130,7 @@ def clean_ir(wikitext_ir):
     remove_leading_stars(wikitext_ir)
     remove_quote_delimiters(wikitext_ir)
     markup_cleaner(wikitext_ir)
+    replace_html_breaks(wikitext_ir)
     remove_html(wikitext_ir)
 
 if __name__ == '__main__':
