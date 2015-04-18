@@ -14,7 +14,7 @@ def remove_disputed(wikitext_ir):
     root_node.remove_children_using_regex(disputed_regex)
 
 def remove_quotes_about_x(wikitext_ir):
-    about_x_regex = re.compile(r'==(\s)*(((Quotes)|(Quotations))\s)?((about)|(regarding)) [0-9a-zA-Z\s\.]+==', re.IGNORECASE)
+    about_x_regex = re.compile(r'==(\s)*(((Quotes)|(Quotations))\s)?((about)|(regarding))[\s]?[0-9a-zA-Z\s\.]*==', re.IGNORECASE)
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(about_x_regex)
 
@@ -100,9 +100,9 @@ def replace_html_breaks(wikitext_ir):
     root_node.do_for_all_in_tree(replace_html_helper)
 
 def remove_html(wikitext_ir):
-    html_regex = re.compile(r'<(([/]?)|(![-]+))[\s\w=\\\"]*([/])?[-]*>')
+    html_regex = re.compile(r'<(([/]?)|(![-]+))[\s\w#&\?\.\-:=\\\"\/]*(([/]?)|([-]*))>', re.UNICODE)
     def remove_html_helper(node):
-        node.value = html_regex.sub('', node.value)
+        node.value = html_regex.sub(r'', node.value)
     root_node = wikitext_ir.root_node
     root_node.do_for_all_in_tree(remove_html_helper)
 
