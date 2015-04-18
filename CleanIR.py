@@ -20,7 +20,7 @@ def remove_quotes_about_x(wikitext_ir):
 
 def remove_noise_sections(wikitext_ir):
     """Remove sections that have nothing to do with quotes"""
-    noise_sections = re.compile(r'==(\s)*((See also)|(External links)|(Sources)|(Also see)|(Primary sources))(\s)*==', re.IGNORECASE)
+    noise_sections = re.compile(r'==(\s)*((See also)|(External links)|(Sources)|(Also see)|(Primary sources)|(Additional source))(\s)*==', re.IGNORECASE)
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(noise_sections)
 
@@ -118,9 +118,9 @@ def markup_cleaner(wikitext_ir):
     regex_sub_list = []
     regex_sub_list.append((re.compile(r'\'\'\''), r''))
     regex_sub_list.append((re.compile(r'\'\''), r''))
-    regex_sub_list.append((re.compile(r'\[\[([\s\w:\.\\/]+\|)([\s\w]+)\]\]', re.UNICODE), r'\2'))
-    regex_sub_list.append((re.compile(r'\[\[([\w\s]+)\]\]', re.UNICODE), r'\1'))
-    regex_sub_list.append((re.compile(r'\[(.+)\]'), r''))
+    regex_sub_list.append((re.compile(r'\[\[([\s\w:\.:\\\/\|\_\#]+\|)([\s\w]+)\]\]', re.UNICODE), r'\2'))
+    regex_sub_list.append((re.compile(r'[\[]{2}([\w\s\.:\\\/\|\_]+)[\]]{2}', re.UNICODE), r'\1'))
+    regex_sub_list.append((re.compile(r'[\[]{1}([\w\s\.:\\\/\|\_]+)[\]]{1}', re.UNICODE), r''))
     regex_sub_list.append((re.compile(r'\{{1,2}[\s\w\.:\\\/\|]*\}{1,2}', re.UNICODE), r''))
     def clean_markup_internal(node):
         node.value = clean_string_with_regexes(node.value, regex_sub_list)
