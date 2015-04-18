@@ -4,7 +4,7 @@ from InternalRepresentation import InternalRepresentation, ir_from_json, Invalid
 from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
-    misattributed_regex = re.compile(r'==(\s)*((Misattributed)|(Attributed))(\s)*==')
+    misattributed_regex = re.compile(r'==(\s)*((Misattributed)|(Attributed)|(Posthumous attributions))(\s)*==', re.IGNORECASE)
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(misattributed_regex)
 
@@ -14,7 +14,7 @@ def remove_disputed(wikitext_ir):
     root_node.remove_children_using_regex(disputed_regex)
 
 def remove_quotes_about_x(wikitext_ir):
-    about_x_regex = re.compile(r'==(\s)*((Quotes)|(Quotations) )?((about)|(regarding)) [a-zA-Z\s]+(\s)*==', re.IGNORECASE)
+    about_x_regex = re.compile(r'==(\s)*((Quotes)|(Quotations))? ((about)|(regarding)) [0-9a-zA-Z\s\.]+==', re.IGNORECASE)
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(about_x_regex)
 
