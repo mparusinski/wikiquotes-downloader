@@ -20,7 +20,7 @@ def remove_quotes_about_x(wikitext_ir):
 
 def remove_noise_sections(wikitext_ir):
     """Remove sections that have nothing to do with quotes"""
-    noise_sections = re.compile(r'==(\s)*((See also)|(External links)|(Sources)|(Also see))(\s)*==', re.IGNORECASE)
+    noise_sections = re.compile(r'==(\s)*((See also)|(External links)|(Sources)|(Also see)|(Primary sources))(\s)*==', re.IGNORECASE)
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(noise_sections)
 
@@ -100,7 +100,7 @@ def replace_html_breaks(wikitext_ir):
     root_node.do_for_all_in_tree(replace_html_helper)
 
 def remove_html(wikitext_ir):
-    html_regex = re.compile(r'<(([/]?)|(![-]+))[\s\w]*([/])?[-]*>')
+    html_regex = re.compile(r'<(([/]?)|(![-]+))[\s\w=\\\"]*([/])?[-]*>')
     def remove_html_helper(node):
         node.value = html_regex.sub('', node.value)
     root_node = wikitext_ir.root_node
@@ -119,6 +119,7 @@ def markup_cleaner(wikitext_ir):
     regex_sub_list.append((re.compile(r'\[\[([\s\w:\.\\/]+\|)([\s\w]+)\]\]', re.UNICODE), r'\2'))
     regex_sub_list.append((re.compile(r'\[\[([\w\s]+)\]\]', re.UNICODE), r'\1'))
     regex_sub_list.append((re.compile(r'\[(.+)\]'), r''))
+    regex_sub_list.append((re.compile(r'\{{1,2}[\s\w\.:\\\/]*\}{1,2}', re.UNICODE), r''))
     def clean_markup_internal(node):
         node.value = clean_string_with_regexes(node.value, regex_sub_list)
     root_node = wikitext_ir.root_node
