@@ -4,7 +4,7 @@ from InternalRepresentation import InternalRepresentation, ir_from_json, Invalid
 from DetectLanguage import LanguageDetector
 
 def remove_misattributed(wikitext_ir):
-    misattributed_regex = re.compile(r'==(\s)*((Misattributed)|(Attributed)|(Posthumous attributions))(\s)*==', re.IGNORECASE)
+    misattributed_regex = re.compile(r'==(\s)*((Misattributed)|(Attributed)|(Posthumous attributions)|(Assorted))(\s)*==', re.IGNORECASE)
     root_node = wikitext_ir.root_node
     root_node.remove_children_using_regex(misattributed_regex)
 
@@ -119,7 +119,7 @@ def markup_cleaner(wikitext_ir):
     regex_sub_list.append((re.compile(r'\[\[([\s\w:\.\\/]+\|)([\s\w]+)\]\]', re.UNICODE), r'\2'))
     regex_sub_list.append((re.compile(r'\[\[([\w\s]+)\]\]', re.UNICODE), r'\1'))
     regex_sub_list.append((re.compile(r'\[(.+)\]'), r''))
-    regex_sub_list.append((re.compile(r'\{{1,2}[\s\w\.:\\\/]*\}{1,2}', re.UNICODE), r''))
+    regex_sub_list.append((re.compile(r'\{{1,2}[\s\w\.:\\\/\|]*\}{1,2}', re.UNICODE), r''))
     def clean_markup_internal(node):
         node.value = clean_string_with_regexes(node.value, regex_sub_list)
     root_node = wikitext_ir.root_node
