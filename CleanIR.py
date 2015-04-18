@@ -81,6 +81,8 @@ def remove_leading_stars(wikitext_ir):
 def remove_quote_delimiters(wikitext_ir):
     def cleaning_function(node):
         node.value = node.value.lstrip("'").rstrip("'")
+        if node.value.startswith("\""):
+            node.value = node.value.lstrip("\"").rstrip().rstrip("\" ")
     root_node = wikitext_ir.root_node
     root_node.do_for_all_in_tree(cleaning_function)
 
@@ -129,10 +131,10 @@ def clean_ir(wikitext_ir):
     remove_sections(wikitext_ir)
     remove_second_depth(wikitext_ir)
     remove_leading_stars(wikitext_ir)
-    remove_quote_delimiters(wikitext_ir)
     markup_cleaner(wikitext_ir)
     replace_html_breaks(wikitext_ir)
     remove_html(wikitext_ir)
+    remove_quote_delimiters(wikitext_ir)
 
 if __name__ == '__main__':
     pass
