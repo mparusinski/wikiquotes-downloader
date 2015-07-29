@@ -120,7 +120,7 @@ def markup_cleaner(wikitext_ir):
     regex_sub_list.append((re.compile(r'\'\''), r''))
     regex_sub_list.append((re.compile(r'\[\[([\s\w:\.:\\\/\|\_\#]+\|)([\s\w]+)\]\]', re.UNICODE), r'\2'))
     regex_sub_list.append((re.compile(r'[\[]{2}([\w\s\.:\\\/\|\_]+)[\]]{2}', re.UNICODE), r'\1'))
-    regex_sub_list.append((re.compile(r'[\[]{1}([\w\s\.:\\\/\|\_]+)[\]]{1}', re.UNICODE), r''))
+    regex_sub_list.append((re.compile(r'[\[]{1}([\w\s\.:\\\/\|\_]+)[\]]{1}', re.UNICODE), r'\1'))
     regex_sub_list.append((re.compile(r'\{{1,2}[\s\w\.:\\\/\|]*\}{1,2}', re.UNICODE), r''))
     def clean_markup_internal(node):
         node.value = clean_string_with_regexes(node.value, regex_sub_list)

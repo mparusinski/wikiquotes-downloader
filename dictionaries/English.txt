@@ -127,3 +127,6 @@ praise
 is
 dead
 each
+women
+woman
+alone
