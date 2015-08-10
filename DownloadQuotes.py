@@ -28,6 +28,8 @@ def main():
     parser.add_argument('--raw', action="store_true", dest="raw", \
         help='Show internal representation obtained from wikiquotes with no parsing', \
         default=False)
+    parser.add_argument('--query-only', action="store_true", dest="query_only", \
+        help='Get the JSON output from wikiquotes, but do not processing', default=False)
     parser.add_argument('--from-json', action="store", metavar='json_file', type=str, \
         help='Use JSON file instead of wikiquote API')
     parser.add_argument('-o', '--output', action="store", metavar='output_file', type=str, \
@@ -70,6 +72,11 @@ def main():
         except NetworkingException as e:
             print e
             return
+    print args
+    if args.query_only:
+        for json_content in json_contents:
+            print json_content
+        return
     irinstances = map(ir_from_json, json_contents)
     final_output = ""
     if args.raw:
