@@ -2,7 +2,7 @@ import pycurl
 from StringIO import StringIO
 
 PEEK_AHEAD_FOR_ERROR_LENGTH = 321
-WIKIQUOTE_URL_BASE = "http://en.wikiquote.org/w/api.php?format=json&action=query&titles="
+WIKIQUOTE_URL_BASE = "https://en.wikiquote.org/w/api.php?format=json&action=query&titles="
 
 class InvalidTitleException(Exception):
 
