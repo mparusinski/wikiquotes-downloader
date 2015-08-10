@@ -598,6 +598,8 @@ class WikitextExtractorTest(unittest.TestCase):
         wiki_retriever.close_networking()
         title, wikitext_content = wikitext_from_json(online_json_content)
 
+    @unittest.skipIf(not NETWORKING,
+                     "not able to establish a connection to wikiquote.org")
     def test_multiple_source_build(self):
         wiki_retriever = WikiquotesRetriever()
         wiki_retriever.setup_networking()
